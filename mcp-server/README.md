@@ -37,10 +37,28 @@ node mcp-server/check.mjs -- npm run --silent mcp
 It prints one line per check. Fix the failures yourself: the agent may explain a message or review your handler, but it must not write the protocol code for you.
 
 ## How to start it
-<!-- The exact command, so the lecturer can run your server too. -->
+node mcp-server/server.js
 
 ## Session transcript
-<!-- Paste one full session: initialize, the reply, tools/list, one good tools/call, one that fails. -->
+
+```
+node mcp-server/server.js
+{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05"}}
+got: {"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05"}}
+{"jsonrpc":"2.0","id":1,"result":{"protocolVersion":"2024-11-05","capabilities":{"tools":{}},"serverInfo":{"name":"my-server","version":"1.0.0"}}}
+{"jsonrpc":"2.0","method":"notifications/initialized"}
+got: {"jsonrpc":"2.0","method":"notifications/initialized"}
+{"jsonrpc":"2.0","id":2,"method":"tools/list"}
+got: {"jsonrpc":"2.0","id":2,"method":"tools/list"}
+{"jsonrpc":"2.0","id":2,"result":{"tools":[{"name":"find_lecture","description":"Finds and retrieves course lecture details by its lecture number. Returns title, topic, and description.","inputSchema":{"type":"object","properties":{"number":{"type":"number","description":"The sequential number of the course lecture to look up."}},"required":["number"]}},{"name":"ping_server","description":"Pings the MCP server to verify that the communication channel and standard input/output are operational.","inputSchema":{"type":"object","properties":{"message":{"type":"string","description":"An optional greeting or ping string to echo back."}}}}]}}
+{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"find_lecture","arguments":{"number":5}}}
+got: {"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"find_lecture","arguments":{"number":5}}}
+{"jsonrpc":"2.0","id":3,"result":{"content":[{"type":"text","text":"Lecture 5: What the agent built, part 1. Topics: HTTP, REST vs GraphQL, data modeling, ORM, layers"}],"isError":false}}
+{"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"find_lecture","arguments":{"number":99}}}
+got: {"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"find_lecture","arguments":{"number":99}}}
+{"jsonrpc":"2.0","id":4,"result":{"content":[{"type":"text","text":"Lecture 99 not found."}],"isError":true}}
+```
 
 ## The description experiment
-<!-- Three sentences: what you changed in the description, whether the model chose the tool differently, and why you think so. -->
+
+I changed the `find_lecture` description from "Finds and retrieves course lecture details by its lecture number. Returns title, topic, and description." to the vague "Returns data." The model did not choose differently: for "What does lecture 7 cover?" it still called `find_lecture(number: 7)` and answered correctly from my server (Evaluating output: non-determinism, false positives, when to trust it). I think this is because the tool name `find_lecture` and the parameter description ("The sequential number of the course lecture to look up") still made the purpose obvious, and with only two tools there was little room to choose wrong.

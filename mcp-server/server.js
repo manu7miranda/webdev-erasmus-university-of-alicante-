@@ -10,7 +10,7 @@ const rl = readline.createInterface({
 const TOOLS = [
   {
     name: 'find_lecture',
-    description: 'Finds and retrieves course lecture details by its lecture number. Returns title, topic, and description.',
+    description: 'Finds and retrieves course lecture details by its lecture number. Returns the title and topics.',
     inputSchema: {
       type: 'object',
       properties: {
