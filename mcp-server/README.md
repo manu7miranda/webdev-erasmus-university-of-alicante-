@@ -37,7 +37,8 @@ node mcp-server/check.mjs -- npm run --silent mcp
 It prints one line per check. Fix the failures yourself: the agent may explain a message or review your handler, but it must not write the protocol code for you.
 
 ## How to start it
-node mcp-server/server.js
+
+`npm run --silent mcp`
 
 ## Session transcript
 
