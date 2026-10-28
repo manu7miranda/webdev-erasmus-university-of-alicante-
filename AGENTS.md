@@ -21,6 +21,7 @@ See `SPEC.md` for goals, non-goals and acceptance criteria.
 - Every test names the acceptance criterion it proves in its title, for example `test('AC-6 a full event refuses a sign-up', ...)`.
 - API errors return JSON with an `error` message and the right HTTP status (401, 403, 404, 409).
 - Code, comments and commit messages are in English; keep commits small, one change each.
+- Business rules live in `src/services/` (for example, whether an event is full or a member may rate it); Express routes in `src/routes/` only read the request, call a service and send the response.
 
 ## Layers
 <!-- Fill in the file or folder for each layer. -->
