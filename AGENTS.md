@@ -8,14 +8,19 @@ See `SPEC.md` for goals, non-goals and acceptance criteria.
 
 ## Commands
 <!-- How to install, run, test. Keep these exact and working. -->
-- Install: 
-- Run: 
-- Test: 
-- Coverage: 
-- MCP server: 
+- Install: `npm install`
+- Run: `npm start` (starts the Express server from `src/server.js`; open it from the Ports tab)
+- Test: `npm test` (Node's built-in test runner, `node --test`)
+- MCP server: `npm run --silent mcp`
 
 ## Conventions
 <!-- Folder layout, naming, where business rules live, how errors are returned to the client. -->
+- Backend code lives in `src/`, the plain HTML, CSS and JavaScript pages in `public/`, and tests in `test/`.
+- Database access uses the `pg` package with parameterized queries only; never build SQL by joining strings.
+- Secrets are read from `process.env`; never write a key or secret in a file.
+- Every test names the acceptance criterion it proves in its title, for example `test('AC-6 a full event refuses a sign-up', ...)`.
+- API errors return JSON with an `error` message and the right HTTP status (401, 403, 404, 409).
+- Code, comments and commit messages are in English; keep commits small, one change each.
 
 ## Layers
 <!-- Fill in the file or folder for each layer. -->
@@ -30,7 +35,7 @@ that talks to the database directly is a second, unguarded way into your data: n
 
 ## The model feature
 <!-- Provider, env var, and the call site. -->
-- The provider is named in exactly one file: 
+- The provider is named in exactly one file:
 - The key comes from an environment variable and is never committed or logged.
 - Every call has a timeout and a deterministic fallback, so the app still works when the provider is down or rate-limited.
 - The model's output is re-checked against real data before anything is saved or shown.

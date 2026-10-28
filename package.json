@@ -7,7 +7,8 @@
     "doc": "docs"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/server.js",
+    "test": "node --test",
     "mcp": "node mcp-server/server.js"
   },
   "repository": {
