@@ -9,6 +9,9 @@ See `SPEC.md` for goals, non-goals and acceptance criteria.
 ## Commands
 <!-- How to install, run, test. Keep these exact and working. -->
 - Install: `npm install`
+- Start DB: `npm run db`
+- Migrate: `npm run migrate`
+- Seed: `npm run seed`
 - Run: `npm start` (starts the Express server from `src/server.js`; open it from the Ports tab)
 - Test: `npm test` (Node's built-in test runner, `node --test`)
 - MCP server: `npm run --silent mcp`
