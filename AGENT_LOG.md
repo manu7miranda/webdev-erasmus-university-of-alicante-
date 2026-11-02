@@ -43,3 +43,11 @@ One entry per agent session, newest at the bottom. Be honest: what went wrong is
   - I stopped the session before src/db/migrate.js; the terminal closed once, but no approved work was lost.
 - Changed by hand: emptied the example values of DATABASE_URL and SESSION_SECRET in .env.example; rewrote src/db/pool.js with require; added the CommonJS rule to AGENTS.md.
 - Next: start the database (npm run db), then src/db/migrate.js and src/db/seed.js, with SQL only in a data access layer, as the Layers section of AGENTS.md says.
+
+## Session 3 · Check that the agent reads AGENTS.md (2026-11-02)
+
+- Goal: step 6 of Exercise 2, confirm that a fresh session reads the "Always ask before" list.
+- Delegated: nothing; only a question.
+- Checkpoints: compared its answer with `grep -A12 "Always ask before" AGENTS.md`.
+- Went wrong: it answered with 0 tool calls, so AGENTS.md was loaded at start, but it listed only 6 of the 9 items and left out adding or removing MCP tools, changing a coverage threshold and sending user data to a third-party model. I also typed a shell command into Gemini by mistake and cancelled it.
+- Changed by hand: nothing.
