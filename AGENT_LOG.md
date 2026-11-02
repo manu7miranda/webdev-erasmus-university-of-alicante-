@@ -29,7 +29,23 @@ One entry per agent session, newest at the bottom. Be honest: what went wrong is
 - Went wrong: Nothing failed this time. The experiment showed the description alone was not decisive: the tool name and the parameter description were enough. I also noticed the original description promised a "description" field that `lectures.json` does not have.
 - Changed by hand: Edited only line 13 of `server.js` for the experiment, started Gemini with `--model gemini-3.5-flash-lite` to avoid the earlier hang, and afterwards restored a precise description, corrected to "Returns the title and topics.".
 
-## Session 2 · Slice 1 plan and setup (2026-10-28)
+## 2026-10-28 · Slice 1 plan, first attempt
+
+- Goal: get a plan for slice 1 with no code.
+- Delegated: the plan.
+- Checkpoints: ran /stats after 3 minutes with no answer.
+- Went wrong: gemini-3.8-flash hung (5 requests, 0 output tokens); I cancelled the request.
+- Changed by hand: nothing.
+
+## 2026-10-28 · Slice 1 plan, second attempt
+
+- Goal: the same plan, in a new session.
+- Delegated: the plan.
+- Checkpoints: ran /stats when it did not answer.
+- Went wrong: the new session went back to the default gemini-3.8-flash and hung again (8 requests, 0 output tokens). Lesson: start with `gemini --model gemini-3.5-flash-lite`.
+- Changed by hand: nothing.
+
+## 2026-10-28 · Slice 1 plan and setup
 
 - Goal: plan slice 1 (AC-1 to AC-4) and start building it.
 - Delegated: the plan, npm packages, new npm scripts (db, migrate, seed), .env.example keys, AGENTS.md commands, src/db/pool.js.
@@ -44,7 +60,7 @@ One entry per agent session, newest at the bottom. Be honest: what went wrong is
 - Changed by hand: emptied the example values of DATABASE_URL and SESSION_SECRET in .env.example; rewrote src/db/pool.js with require; added the CommonJS rule to AGENTS.md.
 - Next: start the database (npm run db), then src/db/migrate.js and src/db/seed.js, with SQL only in a data access layer, as the Layers section of AGENTS.md says.
 
-## Session 3 · Check that the agent reads AGENTS.md (2026-11-02)
+## 2026-11-02 · Check that the agent reads AGENTS.md
 
 - Goal: step 6 of Exercise 2, confirm that a fresh session reads the "Always ask before" list.
 - Delegated: nothing; only a question.
