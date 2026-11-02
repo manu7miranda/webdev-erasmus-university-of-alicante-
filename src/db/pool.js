@@ -1,8 +1,6 @@
-import pkg from 'pg';
-const { Pool } = pkg;
+const { Pool } = require('pg');
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-});
+// One shared connection pool; the URL comes from the environment, never from the code.
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
-export default pool;
+module.exports = pool;

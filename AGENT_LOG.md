@@ -28,3 +28,18 @@ One entry per agent session, newest at the bottom. Be honest: what went wrong is
 - Checkpoints: Gemini still called `find_lecture(number: 7)` and answered "Evaluating output" with the same three topics, matching `lectures.json`. `/stats`: 1 tool call, 100% success.
 - Went wrong: Nothing failed this time. The experiment showed the description alone was not decisive: the tool name and the parameter description were enough. I also noticed the original description promised a "description" field that `lectures.json` does not have.
 - Changed by hand: Edited only line 13 of `server.js` for the experiment, started Gemini with `--model gemini-3.5-flash-lite` to avoid the earlier hang, and afterwards restored a precise description, corrected to "Returns the title and topics.".
+
+## Session 2 · Slice 1 plan and setup (2026-10-28)
+
+- Goal: plan slice 1 (AC-1 to AC-4) and start building it.
+- Delegated: the plan, npm packages, new npm scripts (db, migrate, seed), .env.example keys, AGENTS.md commands, src/db/pool.js.
+- Checkpoints: asked for a plan with no code first, reviewed it, and sent corrections before allowing any file write; approved every write with Allow once.
+- Went wrong:
+  - gemini-3.8-flash hung in two sessions (requests with 0 output tokens); switched to gemini-3.5-flash-lite. A new session goes back to the default model, so start with `gemini --model gemini-3.5-flash-lite`.
+  - The first plan stored free_places as a column, made password_hash NOT NULL (which breaks Google-only accounts), redirected the API instead of returning 401, had no seed data, and planned PostgreSQL with apt. All corrected before any code.
+  - The updated plan added a registrations table that was not asked for; removed from slice 1.
+  - It tried to delete the course comments in .env.example; rejected.
+  - It wrote src/db/pool.js with import/export, which would need "type": "module" and break mcp-server/server.js (require).
+  - I stopped the session before src/db/migrate.js; the terminal closed once, but no approved work was lost.
+- Changed by hand: emptied the example values of DATABASE_URL and SESSION_SECRET in .env.example; rewrote src/db/pool.js with require; added the CommonJS rule to AGENTS.md.
+- Next: start the database (npm run db), then src/db/migrate.js and src/db/seed.js, with SQL only in a data access layer, as the Layers section of AGENTS.md says.
