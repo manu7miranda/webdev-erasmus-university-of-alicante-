@@ -89,7 +89,7 @@ Passwords are stored only as a Has, never as readable text.
 - [AC-16] A member who signs in with the correct email and password lands on the events list and sees their name at the top.
 - [AC-17] A member who signs in with a wrong password sees "Wrong email or password", stays on the sign-in page and gets no session.
 - [AC-18] A visitor without a session who opens /events is redirected to /login, and a request to /api/events without a session gets 401.
-- [AC-19] A signed-in member sees only upcoming events from the `events` table, ordered by date, each with its title, date and free places.
+- [AC-19] A signed-in member sees only upcoming events from the `events` table, ordered by date, each with its title, its date and start time in hours and minutes (no seconds), and its free places.
 - [AC-20] When one event row is deleted from the `events` table, a signed-in member who reloads /events no longer sees that event.
 
 ## Traceability
@@ -100,3 +100,6 @@ Passwords are stored only as a Has, never as readable text.
 
 ## Spec vs result
 <!-- After the agent builds the slice: which criteria passed, which it missed or reinterpreted, and what you changed in this spec because of it. -->
+- Passed: AC-16 sign-in with the seeded member shows "Welcome, Member Bob"; AC-17 a wrong password shows "Wrong email or password" and gives no session; AC-18 /events without a session redirects to /login (302) and /api/events returns 401, and /events.html cannot be opened directly; AC-19 the list shows only the three upcoming events from the `events` table, ordered by date; AC-20 deleting an event row and reloading /events removes it.
+- Missed or reinterpreted: the first plan stored free places as a column, made password_hash NOT NULL (which breaks Google-only accounts) and redirected the API instead of returning 401; it added a registrations table, a deleteEvent function and ON DELETE CASCADE nobody asked for; app.js fell back to a hard-coded session secret and served the whole public/ folder, so /events.html skipped the sign-in check; the seed duplicated events when run twice; and the list showed times with seconds, because AC-19 only said "date".
+- Changed: AC-19 now says the date and start time are shown in hours and minutes, with no seconds, and the events page was changed to match.

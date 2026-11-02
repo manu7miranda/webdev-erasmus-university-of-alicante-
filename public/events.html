@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upcoming Events - Club Events</title>
+  <link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+  <div class="container" style="max-width: 700px;">
+    <div class="header-bar">
+      <div>
+        <h1>Upcoming Events</h1>
+        <p id="welcome-text">Welcome, <span id="user-name">Loading...</span></p>
+      </div>
+      <button id="logout-btn" style="background-color: #8e8e93; padding: 8px 16px;">Sign Out</button>
+    </div>
+    
+    <div id="events-container">
+      <div id="loading-state">Loading events...</div>
+      <div id="empty-state" style="display: none;">No upcoming events</div>
+      <div id="error-state" style="display: none; color: #d70015;">Failed to load events</div>
+      <div id="data-state" style="display: none;"></div>
+    </div>
+  </div>
+  <script src="/assets/events.js"></script>
+</body>
+</html>

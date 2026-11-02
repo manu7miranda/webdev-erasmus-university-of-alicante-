@@ -67,3 +67,11 @@ One entry per agent session, newest at the bottom. Be honest: what went wrong is
 - Checkpoints: compared its answer with `grep -A12 "Always ask before" AGENTS.md`.
 - Went wrong: it answered with 0 tool calls, so AGENTS.md was loaded at start, but it listed only 6 of the 9 items and left out adding or removing MCP tools, changing a coverage threshold and sending user data to a third-party model. I also typed a shell command into Gemini by mistake and cancelled it.
 - Changed by hand: nothing.
+
+## 2026-11-02 · Build slice 1
+
+- Goal: build slice 1 (AC-16 to AC-20): data layer, migrate and seed, services, Express routes and the two pages.
+- Delegated: src/db/users.js, src/db/events.js, migrate.js, seed.js, the two services, the API and page routes, app.js, server.js, and the login and events pages.
+- Checkpoints: reviewed every file before allowing it; ran migrate and seed myself and opened both tables with psql (real rows, bcrypt hashes starting with $2b$10$); tested 302, 401 and sign-in with curl before the pages; then checked AC-16 to AC-20 in the browser.
+- Went wrong: it skipped the plan I asked for and started writing; it rewrote more than asked in almost every file (renamed functions, dropped findById, changed the seed password and dates); it added deleteEvent, ON DELETE CASCADE and a role column without a CHECK; the seed duplicated events; app.js had a hard-coded fallback session secret and served the whole public/ folder, so /events.html skipped the sign-in check; events.js had an unused hrefEscape function that escaped nothing; it tried to run commands and tests after being told to stop; and it said the pages met "all requirements" before I had checked them.
+- Changed by hand: removed hrefEscape from events.js; changed the date format to hours and minutes; added the Spec vs result note and the AC-19 change.

@@ -10,6 +10,7 @@ One row per agent session. In Gemini CLI, type `/stats` before you quit and copy
 | 2026-10-28 | Gemini CLI (gemini-3.8-flash, hung; router on gemini-3.5-flash-lite) | 2402 | 60 | | $0.0009 |
 | 2026-10-28 | Gemini CLI (gemini-3.5-flash-lite) | 434273 | 4790 | | $0.1423 |
 | 2026-11-02 | Gemini CLI (gemini-3.5-flash-lite) | 12702 | 100 | | $0.0041 |
+| 2026-11-02 | Gemini CLI (gemini-3.5-flash-lite) | 1129486 | 9101 | | $0.3616 |
 
 Prices: Gemini API list price for Gemini 3.5 Flash-Lite ($0.30 / 1M input, $2.50 / 1M output), https://ai.google.dev/gemini-api/docs/pricing. Cached input tokens counted at the full input price. The 13 gemini-3.8-flash requests in the first session returned 0 tokens and cost nothing.
 
