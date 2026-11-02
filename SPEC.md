@@ -1,4 +1,4 @@
-# Club Events <Tennis Club>
+# Club Events · Tennis Club
 
 <!-- Exercise 2. Write the non-goals first. Every acceptance criterion must be checkable in under a minute.
      Keep these headings exactly as they are: the self-checks look for them by name.
@@ -65,31 +65,32 @@ Passwords are stored only as a Has, never as readable text.
      Say who acts, what they see, and what must be true in the database. -->
 
 ### Sign-up and roles
-- [AC-5] A member who signs up for an event with free places sees "You are signed up", one new row appears in `registrations`, and the free places go down by one.
-- [AC-6] A member who signs up for an event with no free places sees "This event is full", and no new row appears in `registrations`.
-- [AC-7] A member who is already signed up and tries again sees "You are already signed up", and no duplicate row appears in `registrations`.
-- [AC-8] An organizer creates an event with 20 places, and it appears in the list with 20 free places.
-- [AC-9] A member who is not an organizer and sends a request to create an event gets a 403 error, and no new row appears in `events`.
-- [AC-10] An organizer opens one of their events and sees the names of the members signed up.
+- [AC-1] A member who signs up for an event with free places sees "You are signed up", one new row appears in `registrations`, and the free places go down by one.
+- [AC-2] A member who signs up for an event with no free places sees "This event is full", and no new row appears in `registrations`.
+- [AC-3] A member who is already signed up and tries again sees "You are already signed up", and no duplicate row appears in `registrations`.
+- [AC-4] An organizer creates an event with 20 places, and it appears in the list with 20 free places.
+- [AC-5] A member who is not an organizer and sends a request to create an event gets a 403 error, and no new row appears in `events`.
+- [AC-6] An organizer opens one of their events and sees the names of the members signed up.
 
 ### Waiting list
-- [AC-11] A member who joins the waiting list of a full event sees their position, for example "You are number 2 on the waiting list".
-- [AC-12] When a signed-up member cancels, the first member on the waiting list receives an email with an Accept and a Decline link.
-- [AC-13] A member who opens the Accept link sees a page with a Confirm button, and the row in `registrations` is only created after they click Confirm.
-- [AC-14] A member who opens an offer link a second time, or after it has expired, sees "This link is no longer valid", and nothing changes in the database.
-- [AC-15] When the offered member declines or the offer expires, the next member on the waiting list receives the offer.
-- [AC-16] When the email service fails, the registration or offer is still saved, and the error is written to the server log.
-- [AC-19] When a place is offered less than 2 hours before the event starts, the offer expires when the event starts.
+- [AC-7] A member who joins the waiting list of a full event sees their position, for example "You are number 2 on the waiting list".
+- [AC-8] When a signed-up member cancels, the first member on the waiting list receives an email with an Accept and a Decline link.
+- [AC-9] A member who opens the Accept link sees a page with a Confirm button, and the row in `registrations` is only created after they click Confirm.
+- [AC-10] A member who opens an offer link a second time, or after it has expired, sees "This link is no longer valid", and nothing changes in the database.
+- [AC-11] When the offered member declines or the offer expires, the next member on the waiting list receives the offer.
+- [AC-12] When the email service fails, the registration or offer is still saved, and the error is written to the server log.
+- [AC-13] When a place is offered less than 2 hours before the event starts, the offer expires when the event starts.
 
 ### Ratings
-- [AC-17] A member who signed up for a past event gives it 4 stars and a comment, and the rating appears on the event page.
-- [AC-18] A member who tries to rate an event that has not happened yet, or that they did not sign up for, sees "You can only rate events you attended", and no new row appears in `ratings`.
+- [AC-14] A member who signed up for a past event gives it 4 stars and a comment, and the rating appears on the event page.
+- [AC-15] A member who tries to rate an event that has not happened yet, or that they did not sign up for, sees "You can only rate events you attended", and no new row appears in `ratings`.
 
-### Slice 1: sign-in and events list
-- [AC-1] A member who signs in with the correct email and password lands on the events list and sees their name at the top.
-- [AC-2] A member who signs in with a wrong password sees "Wrong email or password", stays on the sign-in page and gets no session.
-- [AC-3] A visitor without a session who opens /events is redirected to /login.
-- [AC-4] A signed-in member sees only upcoming events from the `events` table, ordered by date, each with its title, date and free places.
+### Slice 1: sign-in and the upcoming events list
+- [AC-16] A member who signs in with the correct email and password lands on the events list and sees their name at the top.
+- [AC-17] A member who signs in with a wrong password sees "Wrong email or password", stays on the sign-in page and gets no session.
+- [AC-18] A visitor without a session who opens /events is redirected to /login, and a request to /api/events without a session gets 401.
+- [AC-19] A signed-in member sees only upcoming events from the `events` table, ordered by date, each with its title, date and free places.
+- [AC-20] When one event row is deleted from the `events` table, a signed-in member who reloads /events no longer sees that event.
 
 ## Traceability
 <!-- Filled in from Exercise 3 onward: each AC id, and the test that names it. -->
