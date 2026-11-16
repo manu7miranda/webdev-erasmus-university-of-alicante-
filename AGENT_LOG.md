@@ -82,3 +82,12 @@ One entry per agent session, newest at the bottom. Be honest: what went wrong is
 - Autonomy: alone only inside one step; it stops after each step and does not start the next one.
 - Checkpoints: written plan reviewed before any code; I read every diff; npm test green before each commit; one commit per step; Allow once for every file write and command.
 - Must stop and ask: anything in "Always ask before", any file outside the step, and any change to an existing test.
+
+### Plan (reviewed)
+1. Migration: src/db/registrations.js run by src/db/migrate.js; registrations with UNIQUE (event_id, user_id) and ON DELETE RESTRICT.
+2. Database and CI: tests use a separate club_test database, created and migrated by a test setup step; a postgres:16 service in the CI test job.
+3. Service: src/services/registrationService.js with EventFull and AlreadySignedUp (409) and NotOwner (403); free places = total_places minus registrations; sign-up in a transaction with SELECT ... FOR UPDATE. Rule tests for AC-1, AC-2, AC-3, AC-21, AC-22.
+4. API: POST /api/events/:id/registrations (201, 409, 404) and DELETE /api/registrations/:id (204, 403, 404); 401 before the service. API tests for the failure paths and for AC-23, AC-16 to AC-20.
+5. UI: Sign up or Cancel button per event on /events, showing the API message.
+
+Changed in review: the first plan was cut off and duplicated; I fixed the endpoints (cancel by registration id, so AC-22 can be tested), moved the ownership check from the data layer to the service, asked for a separate club_test database so tests never touch my data, added tests for AC-23 and slice 1, made the UI step concrete, and kept the FOR UPDATE transaction for the last place. I approved the CI change because GitHub has no database.
