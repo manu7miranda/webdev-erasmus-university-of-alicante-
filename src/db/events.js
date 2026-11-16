@@ -25,20 +25,37 @@ async function createEvent({ title, description, date, organizer_id, total_place
 
 async function listUpcomingEvents() {
   const result = await pool.query(
-    `SELECT id, title, description, date, organizer_id, total_places, total_places AS free_places
-     FROM events
-     WHERE date >= NOW()
-     ORDER BY date ASC`
+    `SELECT e.id, e.title, e.description, e.date, e.organizer_id, e.total_places,
+            (e.total_places - COUNT(r.id))::int AS free_places
+     FROM events e
+     LEFT JOIN registrations r ON r.event_id = e.id
+     WHERE e.date >= NOW()
+     GROUP BY e.id
+     ORDER BY e.date ASC`
   );
   return result.rows;
 }
 
 async function getEventById(id) {
   const result = await pool.query(
-    `SELECT id, title, description, date, organizer_id, total_places, total_places AS free_places
-     FROM events
-     WHERE id = $1`,
+    `SELECT e.id, e.title, e.description, e.date, e.organizer_id, e.total_places,
+            (e.total_places - COUNT(r.id))::int AS free_places
+     FROM events e
+     LEFT JOIN registrations r ON r.event_id = e.id
+     WHERE e.id = $1
+     GROUP BY e.id`,
     [id]
+  );
+  return result.rows[0];
+}
+
+async function lockEventById(eventId, db = pool) {
+  const result = await db.query(
+    `SELECT id, title, date, organizer_id, total_places
+     FROM events
+     WHERE id = $1
+     FOR UPDATE`,
+    [eventId]
   );
   return result.rows[0];
 }
@@ -48,4 +65,5 @@ module.exports = {
   createEvent,
   listUpcomingEvents,
   getEventById,
+  lockEventById,
 };
