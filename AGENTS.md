@@ -26,6 +26,10 @@ See `SPEC.md` for goals, non-goals and acceptance criteria.
 - Code, comments and commit messages are in English; keep commits small, one change each.
 - Business rules live in `src/services/` (for example, whether an event is full or a member may rate it); Express routes in `src/routes/` only read the request, call a service and send the response.
 - Use CommonJS (`require` and `module.exports`), not `import`/`export`, and never add `"type": "module"`: `mcp-server/server.js` uses `require`.
+- Never fall back to a default secret: if a required variable is missing, stop at startup with a clear error.
+- Only `public/assets/` is served as static files; HTML pages are served by routes that check the session.
+- Protect rules in the database too: CHECK constraints, UNIQUE indexes and ON DELETE RESTRICT, never CASCADE.
+- Do not add functions, routes or files that no acceptance criterion or plan step asks for.
 
 ## Layers
 <!-- Fill in the file or folder for each layer. -->
@@ -68,6 +72,8 @@ that talks to the database directly is a second, unguarded way into your data: n
 - adding, renaming or removing an MCP tool
 - changing a coverage threshold
 - sending user data to a third-party model
+- adding a table, a column or a constraint that is not in the plan
+- changing a status code or an error name that SPEC.md fixes
 
 ## Never
 - commit secrets, passwords, API keys or an OAuth client secret

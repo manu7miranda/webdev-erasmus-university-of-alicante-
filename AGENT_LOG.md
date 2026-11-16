@@ -75,3 +75,10 @@ One entry per agent session, newest at the bottom. Be honest: what went wrong is
 - Checkpoints: reviewed every file before allowing it; ran migrate and seed myself and opened both tables with psql (real rows, bcrypt hashes starting with $2b$10$); tested 302, 401 and sign-in with curl before the pages; then checked AC-16 to AC-20 in the browser.
 - Went wrong: it skipped the plan I asked for and started writing; it rewrote more than asked in almost every file (renamed functions, dropped findById, changed the seed password and dates); it added deleteEvent, ON DELETE CASCADE and a role column without a CHECK; the seed duplicated events; app.js had a hard-coded fallback session secret and served the whole public/ folder, so /events.html skipped the sign-in check; events.js had an unused hrefEscape function that escaped nothing; it tried to run commands and tests after being told to stop; and it said the pages met "all requirements" before I had checked them.
 - Changed by hand: removed hrefEscape from events.js; changed the date format to hours and minutes; added the Spec vs result note and the AC-19 change.
+
+## 2026-11-16 · Slice 2: sign up and cancel
+
+- Goal: build slice 2 (AC-1 to AC-3, AC-21 to AC-23): registrations migration, service with its rule tests, API with its tests, authorization and UI.
+- Autonomy: alone only inside one step; it stops after each step and does not start the next one.
+- Checkpoints: written plan reviewed before any code; I read every diff; npm test green before each commit; one commit per step; Allow once for every file write and command.
+- Must stop and ask: anything in "Always ask before", any file outside the step, and any change to an existing test.
