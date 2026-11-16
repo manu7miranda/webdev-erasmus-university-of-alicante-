@@ -1,5 +1,6 @@
 const { createUsersTable } = require('./users');
 const { createEventsTable } = require('./events');
+const { createRegistrationsTable } = require('./registrations');
 const pool = require('./pool');
 
 async function migrate() {
@@ -7,6 +8,7 @@ async function migrate() {
     console.log('Running migrations...');
     await createUsersTable();
     await createEventsTable();
+    await createRegistrationsTable();
     console.log('Migrations completed successfully.');
   } catch (error) {
     console.error('Migration failed:', error);
