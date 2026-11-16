@@ -91,3 +91,14 @@ One entry per agent session, newest at the bottom. Be honest: what went wrong is
 5. UI: Sign up or Cancel button per event on /events, showing the API message.
 
 Changed in review: the first plan was cut off and duplicated; I fixed the endpoints (cancel by registration id, so AC-22 can be tested), moved the ownership check from the data layer to the service, asked for a separate club_test database so tests never touch my data, added tests for AC-23 and slice 1, made the UI step concrete, and kept the FOR UPDATE transaction for the last place. I approved the CI change because GitHub has no database.
+- Went wrong: the session switched by itself to gemini-3.8-flash and then gemini-2.5-pro, which failed; many "Incomplete JSON" errors. The helper had no safety guard before TRUNCATE (it could have emptied my real database); it ignored my request to check the database in the failure tests; it never changed package.json to point npm test to club_test; it tried to rewrite my tests while writing the service; it put SQL in the service, used an Error with a status code instead of EventNotFound, and rewrote the free_places queries dropping ::int. A USAGE.md table separator was missing; I found it in the diff.
+- Changed by hand: the _test guard in clearDatabase (the agent later moved it into validateTestDbUrl); the database checks in the AC-2, AC-3 and AC-22 tests and the pool.end hook; the npm test script (club_test, test secret, only *.test.js); lockEventById in src/db/events.js; the postgres service in ci.yml.
+- Kept from the agent although not asked for: the DATABASE_URL check in src/db/pool.js.
+
+## 2026-11-16 · Slice 2: registration service (second session)
+
+- Goal: src/services/registrationService.js so the rule tests pass, then the API.
+- Autonomy and checkpoints: as in the previous entry.
+- Result: the service passed the 5 rule tests on the first try, with no SQL in it and AlreadySignedUp checked before EventFull. The CI test job is green with its own PostgreSQL.
+- Decision: cancelling a registration that does not exist also returns NotOwner (403), so the ids of other members' sign-ups are not revealed; changed from the plan (404).
+- Went wrong: the API step failed three times with "Incomplete JSON" and once with a rate limit; stopped for today. It kept reading checks/lib.mjs on every request.
