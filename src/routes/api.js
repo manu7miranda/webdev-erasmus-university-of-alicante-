@@ -4,6 +4,7 @@ const { authenticateUser } = require('../services/authService');
 const { getUpcomingEvents } = require('../services/eventService');
 const { signUpForEvent, cancelRegistration, EventFull, AlreadySignedUp, EventNotFound, NotOwner } = require('../services/registrationService');
 const { suggestDescription } = require('../services/descriptionService');
+const { startGoogleLogin, finishGoogleLogin, EmailNotVerified } = require('../services/googleAuthService');
 
 router.post('/login', async (req, res) => {
   try {
@@ -116,6 +117,49 @@ router.post('/events/description-suggestion', async (req, res) => {
     res.json(result);
   } catch (error) {
     res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+router.get('/auth/google', (req, res) => {
+  const { url, state, codeVerifier } = startGoogleLogin();
+  req.session.googleLogin = { state, codeVerifier };
+  req.session.save((err) => {
+    if (err) {
+      return res.status(500).json({ error: 'Session error' });
+    }
+    res.redirect(url);
+  });
+});
+
+router.get('/auth/google/callback', async (req, res) => {
+  const pending = req.session.googleLogin;
+  delete req.session.googleLogin;
+  if (!pending || req.query.state !== pending.state) {
+    return res.status(400).json({ error: 'The Google sign-in could not be checked. Start again from the sign-in page.' });
+  }
+  if (!req.query.code) {
+    return res.redirect('/login');
+  }
+  try {
+    const user = await finishGoogleLogin(req.query.code, pending.codeVerifier);
+    req.session.regenerate((err) => {
+      if (err) {
+        return res.status(500).json({ error: 'Session error' });
+      }
+      req.session.user = user;
+      req.session.save((saveErr) => {
+        if (saveErr) {
+          return res.status(500).json({ error: 'Session error' });
+        }
+        res.redirect('/events');
+      });
+    });
+  } catch (err) {
+    if (err instanceof EmailNotVerified) {
+      return res.status(403).json({ error: err.message });
+    }
+    console.error('google sign-in failed:', err.message);
+    res.status(500).json({ error: 'Google sign-in failed. Try again later.' });
   }
 });
 

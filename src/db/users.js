@@ -52,6 +52,22 @@ async function findUserByMcpTokenHash(hash) {
   return result.rows[0];
 }
 
+async function findUserByGoogleId(googleId) {
+  const result = await pool.query(
+    'SELECT id, email, role, google_id, name FROM users WHERE google_id = $1',
+    [googleId]
+  );
+  return result.rows[0] || null;
+}
+
+async function setGoogleId(userId, googleId) {
+  const result = await pool.query(
+    'UPDATE users SET google_id = $2 WHERE id = $1 RETURNING id, email, role, google_id, name',
+    [userId, googleId]
+  );
+  return result.rows[0];
+}
+
 module.exports = {
   createUsersTable,
   addMcpTokenHashColumn,
@@ -59,4 +75,6 @@ module.exports = {
   findUserByEmail,
   setMcpTokenHash,
   findUserByMcpTokenHash,
+  findUserByGoogleId,
+  setGoogleId,
 };
