@@ -127,3 +127,4 @@ Changed in review: the first plan was cut off and duplicated; I fixed the endpoi
 - Rules in the wrong place: SQL inside the first registration service, an Error with a status code instead of EventNotFound, and the model client created in the route (all fixed).
 - Data it returned or changed without being asked: dropped ::int from the free_places queries, added mcp_token_hash to findUserByEmail, returned password_hash from findUserByMcpTokenHash, and edited a migration that had already run (all rejected).
 - Its own claims: its summaries said "all requirements" and "I successfully implemented" for work I had done or fixed by hand; I trusted the diffs and the tests instead.
+- CI caught a real problem: the tests passed in my codespace but failed on GitHub, because Node runs test files in parallel and they all share the club_test database (one file emptied the tables while another was using them). Fixed by hand with --test-concurrency=1 in the npm test script.
