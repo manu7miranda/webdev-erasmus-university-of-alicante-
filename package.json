@@ -1,7 +1,7 @@
 {
   "name": "webdev-erasmus-university-of-alicante-",
   "version": "1.0.0",
-  "description": "This repository is your workspace for the whole course: Exercise 1 in `mcp-server/`, and your project (Exercises 2–5) in the rest of it. Everything runs in your browser through GitHub Codespaces, so nothing needs to be installed on your laptop.",
+  "description": "This repository is your workspace for the whole course: Exercise 1 in `mcp-server/`, and your project (Exercises 2\u20135) in the rest of it. Everything runs in your browser through GitHub Codespaces, so nothing needs to be installed on your laptop.",
   "main": "index.js",
   "directories": {
     "doc": "docs"
@@ -13,7 +13,8 @@
     "start": "node --env-file-if-exists=.env src/server.js",
     "test": "GEMINI_API_KEY= DATABASE_URL=postgres://postgres:secret@localhost:5432/club_test SESSION_SECRET=test-only-secret node --env-file-if-exists=.env --test --test-concurrency=1 \"test/**/*.test.js\"",
     "mcp-token": "node --env-file-if-exists=.env scripts/mcp-token.js",
-    "mcp": "node --env-file-if-exists=.env mcp-server/server.js"
+    "mcp": "node --env-file-if-exists=.env mcp-server/server.js",
+    "coverage": "GEMINI_API_KEY= DATABASE_URL=postgres://postgres:secret@localhost:5432/club_test SESSION_SECRET=test-only-secret node --env-file-if-exists=.env --test --test-concurrency=1 --experimental-test-coverage --test-coverage-exclude='test/**' --test-coverage-include='src/services/**' --test-coverage-lines=100 --test-coverage-functions=100 --test-coverage-branches=100 \"test/**/*.test.js\" && GEMINI_API_KEY= DATABASE_URL=postgres://postgres:secret@localhost:5432/club_test SESSION_SECRET=test-only-secret node --env-file-if-exists=.env --test --test-concurrency=1 --experimental-test-coverage --test-coverage-exclude='test/**' --test-coverage-include='src/**' --test-coverage-lines=80 \"test/**/*.test.js\""
   },
   "repository": {
     "type": "git",

@@ -9,28 +9,28 @@ const {
 } = require('../db/registrations');
 
 class EventFull extends Error {
-  constructor(message = 'Event is full') {
+  constructor(message) {
     super(message);
     this.name = 'EventFull';
   }
 }
 
 class AlreadySignedUp extends Error {
-  constructor(message = 'Already signed up') {
+  constructor(message) {
     super(message);
     this.name = 'AlreadySignedUp';
   }
 }
 
 class NotOwner extends Error {
-  constructor(message = 'Not owner') {
+  constructor(message) {
     super(message);
     this.name = 'NotOwner';
   }
 }
 
 class EventNotFound extends Error {
-  constructor(message = 'Event not found') {
+  constructor(message) {
     super(message);
     this.name = 'EventNotFound';
   }
@@ -38,6 +38,7 @@ class EventNotFound extends Error {
 
 async function signUpForEvent(eventId, userId) {
   const client = await pool.connect();
+  let registration;
   try {
     await client.query('BEGIN');
     const event = await lockEventById(eventId, client);
@@ -52,15 +53,15 @@ async function signUpForEvent(eventId, userId) {
     if (count >= event.total_places) {
       throw new EventFull('Event is full');
     }
-    const registration = await createRegistration(eventId, userId, client);
+    registration = await createRegistration(eventId, userId, client);
     await client.query('COMMIT');
-    return registration;
   } catch (err) {
     await client.query('ROLLBACK');
     throw err;
   } finally {
     client.release();
   }
+  return registration;
 }
 
 async function cancelRegistration(registrationId, userId) {
