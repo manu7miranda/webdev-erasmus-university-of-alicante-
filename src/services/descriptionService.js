@@ -1,6 +1,16 @@
-async function suggestDescription(notes, { client, timeoutMs = 10000 } = {}) {
+const { createGeminiClient } = require('../lib/geminiClient');
+
+// Fallback: with no key, a slow or failing provider, or an unusable answer,
+// the organizer writes the description by hand and the app keeps working.
+const FALLBACK_MESSAGE = 'Suggestion not available, write the description yourself';
+
+function fallback() {
+  return { suggestion: null, message: FALLBACK_MESSAGE };
+}
+
+async function suggestDescription(notes, { client = createGeminiClient(), timeoutMs = 10000 } = {}) {
   if (!client) {
-    return { suggestion: null, message: 'Suggestion not available, write the description yourself' };
+    return fallback();
   }
 
   const prompt = `Write a short event description (at most 80 words) based on these notes: ${notes}`;
@@ -18,23 +28,23 @@ async function suggestDescription(notes, { client, timeoutMs = 10000 } = {}) {
     clearTimeout(timeoutId);
 
     if (!text || typeof text !== 'string') {
-      return { suggestion: null, message: 'Suggestion not available, write the description yourself' };
+      return fallback();
     }
 
     const trimmed = text.trim();
     if (trimmed === '') {
-      return { suggestion: null, message: 'Suggestion not available, write the description yourself' };
+      return fallback();
     }
 
     const words = trimmed.split(/\s+/);
     if (words.length > 80) {
-      return { suggestion: null, message: 'Suggestion not available, write the description yourself' };
+      return fallback();
     }
 
     return { suggestion: trimmed, message: null };
   } catch (err) {
     clearTimeout(timeoutId);
-    return { suggestion: null, message: 'Suggestion not available, write the description yourself' };
+    return fallback();
   }
 }
 

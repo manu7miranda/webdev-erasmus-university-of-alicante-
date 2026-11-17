@@ -4,7 +4,6 @@ const { authenticateUser } = require('../services/authService');
 const { getUpcomingEvents } = require('../services/eventService');
 const { signUpForEvent, cancelRegistration, EventFull, AlreadySignedUp, EventNotFound, NotOwner } = require('../services/registrationService');
 const { suggestDescription } = require('../services/descriptionService');
-const { createGeminiClient } = require('../lib/geminiClient');
 
 router.post('/login', async (req, res) => {
   try {
@@ -113,7 +112,7 @@ router.post('/events/description-suggestion', async (req, res) => {
   }
   try {
     const { notes } = req.body;
-    const result = await suggestDescription(notes, { client: createGeminiClient() });
+    const result = await suggestDescription(notes);
     res.json(result);
   } catch (error) {
     res.status(500).json({ error: 'Internal server error' });
