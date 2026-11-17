@@ -3,6 +3,7 @@ const session = require('express-session');
 const path = require('path');
 const apiRoutes = require('./routes/api');
 const pageRoutes = require('./routes/pages');
+const { pingDatabase } = require('./db/health');
 
 if (!process.env.SESSION_SECRET) {
   throw new Error('SESSION_SECRET environment variable is required');
@@ -26,12 +27,38 @@ app.use(
   })
 );
 
+// Health check for Render and for people: 200 when the app and the database work, 503 when the database does not answer.
+app.get('/health', async (req, res) => {
+  try {
+    await pingDatabase();
+    res.json({ status: 'ok', db: 'ok' });
+  } catch (err) {
+    console.error('health check: database unreachable:', err.message);
+    res.status(503).json({ status: 'error', db: 'down' });
+  }
+});
+
 app.use('/api', apiRoutes);
 app.use('/assets', express.static(path.join(__dirname, '../public/assets')));
 app.use('/', pageRoutes);
 
 app.get('/', (req, res) => {
   res.redirect(302, '/events');
+});
+
+
+// A page or route that does not exist: one short line, never a stack trace.
+app.use((req, res) => {
+  res.status(404).json({ error: 'Not found' });
+});
+
+// Any other error: the details go to the server log, the user gets one sentence.
+app.use((err, req, res, next) => {
+  if (err.type === 'entity.parse.failed') {
+    return res.status(400).json({ error: 'The request body is not valid JSON.' });
+  }
+  console.error(err);
+  res.status(500).json({ error: 'Something went wrong. Please try again.' });
 });
 
 module.exports = app;
