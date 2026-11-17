@@ -83,17 +83,17 @@ Passwords are stored only as a Has, never as readable text.
 <!-- Filled in from Exercise 3 onward: each AC id, and the test that names it. -->
 | Criterion | Test |
 | --- | --- |
-| AC-1 |  |
-| AC-2 |  |
-| AC-3 |  |
-| AC-16 |  |
-| AC-17 |  |
-| AC-18 |  |
-| AC-19 |  |
-| AC-20 |  |
-| AC-21 |  |
-| AC-22 |  |
-| AC-23 |  |
+| AC-1 | test/registrationService.test.js, test/registrationsApi.test.js |
+| AC-2 | test/registrationService.test.js, test/registrationsApi.test.js |
+| AC-3 | test/registrationService.test.js, test/registrationsApi.test.js |
+| AC-16 | test/slice1Api.test.js |
+| AC-17 | test/slice1Api.test.js |
+| AC-18 | test/slice1Api.test.js |
+| AC-19 | test/slice1Api.test.js |
+| AC-20 | test/slice1Api.test.js |
+| AC-21 | test/registrationService.test.js, test/cancelApi.test.js |
+| AC-22 | test/registrationService.test.js, test/cancelApi.test.js |
+| AC-23 | test/registrationsApi.test.js, test/cancelApi.test.js |
 
 ## Spec vs result
 <!-- After the agent builds the slice: which criteria passed, which it missed or reinterpreted, and what you changed in this spec because of it. -->
