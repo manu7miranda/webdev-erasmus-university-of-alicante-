@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { authenticateUser } = require('../services/authService');
 const { getUpcomingEvents } = require('../services/eventService');
-const { signUpForEvent, EventFull, AlreadySignedUp, EventNotFound } = require('../services/registrationService');
+const { signUpForEvent, cancelRegistration, EventFull, AlreadySignedUp, EventNotFound, NotOwner } = require('../services/registrationService');
 
 router.post('/login', async (req, res) => {
   try {
@@ -80,6 +80,23 @@ router.post('/events/:id/registrations', async (req, res) => {
     }
     if (error instanceof EventNotFound) {
       return res.status(404).json({ error: 'EventNotFound', message: 'Event not found' });
+    }
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+router.delete('/registrations/:id', async (req, res) => {
+  if (!req.session || !req.session.user) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  try {
+    const registrationId = parseInt(req.params.id, 10);
+    const userId = req.session.user.id;
+    await cancelRegistration(registrationId, userId);
+    res.status(204).send();
+  } catch (error) {
+    if (error instanceof NotOwner) {
+      return res.status(403).json({ error: 'NotOwner', message: 'You can only cancel your own sign-up' });
     }
     res.status(500).json({ error: 'Internal server error' });
   }
