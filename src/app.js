@@ -11,6 +11,9 @@ if (!process.env.SESSION_SECRET) {
 
 const app = express();
 
+// Render and the codespace put an https proxy in front of the app; trust it, so secure cookies work.
+app.set('trust proxy', 1);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

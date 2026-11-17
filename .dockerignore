@@ -1,0 +1,9 @@
+node_modules
+.env
+.git
+test
+checks
+docs
+mcp-server
+scripts
+*.md

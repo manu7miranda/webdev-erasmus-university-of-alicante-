@@ -14,3 +14,9 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server listening on http://localhost:${PORT}`);
 });
+
+// In a container the app is process 1 and Node ignores Ctrl+C and Render's stop signal
+// unless it handles them: exit cleanly instead of being killed after a timeout.
+for (const signal of ['SIGINT', 'SIGTERM']) {
+  process.on(signal, () => process.exit(0));
+}
