@@ -45,3 +45,4 @@ test('broken JSON answers 400 with one sentence and no stack trace', async () =>
   assert.ok(text.includes('not valid JSON'));
   assert.ok(!text.includes('at '), 'no stack trace in the body');
 });
+require('node:test')('broken on purpose to prove Render waits for CI', () => { require('node:assert').equal(1, 2); });
