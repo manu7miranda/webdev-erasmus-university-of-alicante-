@@ -26,7 +26,7 @@ Passwords are stored only as a Has, never as readable text.
 <!-- Which model, which modality, and what it does for a user.
      Name three things or the check fails: the input it receives, the output it produces,
      and what happens when the model is slow, rate-limited or wrong. -->
-- Model: Gemini (gemini-3.8-flash) through the Gemini API, with the key in GEMINI_API_KEY.
+- Model: Gemini (gemini-3.5-flash-lite) through the Gemini API, with the key in GEMINI_API_KEY.
 - Input: the short notes an organizer writes when creating an event (for example "5-a-side football, Saturday 10:00, bring water"), plus the title and date.
 - Output: a suggested event description of at most 80 words, shown in the description field. The organizer can edit it or discard it before saving; nothing is saved without their click.
 - Failure plan: if the model does not answer in 10 seconds, returns an error or hits a rate limit, the organizer sees "Suggestion not available, write the description yourself", and the form keeps working with an empty description field. If the suggestion is wrong, the organizer edits it by hand. Creating an event never depends on the model.
@@ -79,6 +79,12 @@ Passwords are stored only as a Has, never as readable text.
 - [AC-22] A member who tries to cancel another member's sign-up gets 403, and the row stays in `registrations`.
 - [AC-23] A visitor without a session who tries to sign up or cancel gets 401, and nothing changes in `registrations`.
 
+### Slice 3: the model suggests an event description
+- [AC-24] An organizer who sends notes to POST /api/events/description-suggestion gets 200 with a suggested description of at most 80 words.
+- [AC-25] When the model takes more than 10 seconds, fails, or there is no GEMINI_API_KEY, the organizer gets 200 with no suggestion and the message "Suggestion not available, write the description yourself".
+- [AC-26] When the model answers with an empty text or more than 80 words, the suggestion is discarded and the organizer gets the same message.
+- [AC-27] A member who is not an organizer gets 403, and a visitor without a session gets 401.
+
 ## Traceability
 <!-- Filled in from Exercise 3 onward: each AC id, and the test that names it. -->
 | Criterion | Test |
@@ -93,6 +99,10 @@ Passwords are stored only as a Has, never as readable text.
 | AC-20 | test/slice1Api.test.js |
 | AC-21 | test/registrationService.test.js, test/cancelApi.test.js |
 | AC-22 | test/registrationService.test.js, test/cancelApi.test.js |
+| AC-24 |  |
+| AC-25 |  |
+| AC-26 |  |
+| AC-27 |  |
 | AC-23 | test/registrationsApi.test.js, test/cancelApi.test.js |
 
 ## Spec vs result
@@ -101,3 +111,4 @@ Passwords are stored only as a Has, never as readable text.
 - Missed or reinterpreted: the first plan stored free places as a column, made password_hash NOT NULL (which breaks Google-only accounts) and redirected the API instead of returning 401; it added a registrations table, a deleteEvent function and ON DELETE CASCADE nobody asked for; app.js fell back to a hard-coded session secret and served the whole public/ folder, so /events.html skipped the sign-in check; the seed duplicated events when run twice; and the list showed times with seconds, because AC-19 only said "date".
 - Changed: AC-19 now says the date and start time are shown in hours and minutes, with no seconds, and the events page was changed to match.
 - Changed (Exercise 3): removed the waiting list and ratings criteria (old AC-4 to AC-15, ids retired) to build the sign-up feature, the model feature and the MCP tools well; replaced get_event_ratings with sign_up_for_event.
+- Changed (Exercise 3): the model feature uses gemini-3.5-flash-lite instead of gemini-3.8-flash, which hung in every agent session; added slice 3 (AC-24 to AC-27) so the model feature and its fallback are tested. The create-event screen is left for later.
