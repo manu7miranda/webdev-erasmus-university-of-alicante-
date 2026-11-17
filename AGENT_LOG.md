@@ -111,3 +111,19 @@ Changed in review: the first plan was cut off and duplicated; I fixed the endpoi
 - Went wrong: "Incomplete JSON" and rate-limit errors again; once it spent minutes re-reading the same files and running git log instead of writing the test; it kept asking to run npm test after I had run it; it put the Gemini API key in the URL; its summary claimed it had built things I did by hand.
 - Changed by hand: the error-name checks in the AC-2 and AC-3 API tests; the clearer empty and error texts in events.html; the traceability table; the CI postgres service. I accepted the slice 3 criteria proposed by my tutor after reviewing them.
 - Next: the route for the description suggestion (AC-24 to AC-27), then the MCP tools, the architecture note, and steps 9 to 11.
+
+## 2026-11-17 · Model feature route and MCP tools (afternoon)
+
+- Goal: finish slice 3 (the description suggestion route) and the MCP tools, then the architecture note.
+- Autonomy and checkpoints: one small step at a time, tests first; I read every diff and committed after each step.
+- Result: the description suggestion route (401, 403, fallback), MCP tokens stored as SHA-256 hashes, and list_upcoming_events, get_event and sign_up_for_event calling the same services as the API. checks/ex3.mjs: 18/18.
+- Went wrong: it wandered again, re-reading files and asking to run npm test before writing anything; it put the Gemini API key in the URL; it edited createUsersTable, a migration that had already run; it made findUserByEmail and findUserByMcpTokenHash return more columns than needed. The check found the model client created in the route.
+- Changed by hand: emptied GEMINI_API_KEY in the npm test script so no test calls the real model; moved the model client and the fallback into the service; added addMcpTokenHashColumn to the test helper; wrote scripts/mcp-token.js; rotated my MCP token twice after it appeared on screen. The tool list and tool calls in mcp-server/server.js were written with my tutor's help, and I reviewed and tested them by hand.
+
+## What the agent did that I did not ask for
+
+- Extra files and functions: getEventById in src/db/events.js (kept, read-only and used later by get_event); deleteEvent and ON DELETE CASCADE in slice 1 (removed); a DATABASE_URL check in src/db/pool.js (kept, it matches the no-fallback convention); a refactor of my test guard into validateTestDbUrl (kept, same protection).
+- Changed tests: it tried to rewrite my rule tests while writing the service (rejected), and proposed its own npm test script after I had written mine (rejected).
+- Rules in the wrong place: SQL inside the first registration service, an Error with a status code instead of EventNotFound, and the model client created in the route (all fixed).
+- Data it returned or changed without being asked: dropped ::int from the free_places queries, added mcp_token_hash to findUserByEmail, returned password_hash from findUserByMcpTokenHash, and edited a migration that had already run (all rejected).
+- Its own claims: its summaries said "all requirements" and "I successfully implemented" for work I had done or fixed by hand; I trusted the diffs and the tests instead.
