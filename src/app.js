@@ -36,8 +36,7 @@ app.get('/health', async (req, res) => {
     await pingDatabase();
     res.json({ status: 'ok', db: 'ok' });
   } catch (err) {
-    console.error('health check: database unreachable:', err.message);
-    res.status(503).json({ status: 'error', db: 'down' });
+    console.error('health check: database unreachable:', err.code || err.message, (err.errors || []).map((e) => `${e.code} ${e.address}`).join(', '));    res.status(503).json({ status: 'error', db: 'down' });
   }
 });
 

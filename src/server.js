@@ -6,7 +6,7 @@ if (missing.length > 0) {
   console.error(`missing ${missing.join(', ')}: see .env.example`);
   process.exit(1);
 }
-
+console.log(`database host: ${new URL(process.env.DATABASE_URL).hostname}`);
 const app = require('./app');
 
 const PORT = process.env.PORT || 3000;
