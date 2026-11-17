@@ -1,4 +1,4 @@
-const { createUsersTable } = require('./users');
+const { createUsersTable, addMcpTokenHashColumn } = require('./users');
 const { createEventsTable } = require('./events');
 const { createRegistrationsTable } = require('./registrations');
 const pool = require('./pool');
@@ -7,6 +7,7 @@ async function migrate() {
   try {
     console.log('Running migrations...');
     await createUsersTable();
+    await addMcpTokenHashColumn();
     await createEventsTable();
     await createRegistrationsTable();
     console.log('Migrations completed successfully.');

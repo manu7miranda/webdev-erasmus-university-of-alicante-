@@ -1,5 +1,5 @@
 const { Pool } = require('pg');
-const { createUsersTable } = require('../src/db/users');
+const { createUsersTable, addMcpTokenHashColumn } = require('../src/db/users');
 const { createEventsTable } = require('../src/db/events');
 const { createRegistrationsTable } = require('../src/db/registrations');
 
@@ -36,6 +36,7 @@ async function setupTestDb() {
 
   // Now run migrations on club_test
   await createUsersTable();
+  await addMcpTokenHashColumn();
   await createEventsTable();
   await createRegistrationsTable();
 }

@@ -13,6 +13,12 @@ async function createUsersTable() {
   `);
 }
 
+async function addMcpTokenHashColumn() {
+  await pool.query(`
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS mcp_token_hash TEXT UNIQUE;
+  `);
+}
+
 async function createUser({ email, password_hash, role = 'member', google_id = null, name }) {
   const result = await pool.query(
     `INSERT INTO users (email, password_hash, role, google_id, name)
@@ -31,8 +37,26 @@ async function findUserByEmail(email) {
   return result.rows[0];
 }
 
+async function setMcpTokenHash(userId, hash) {
+  await pool.query(
+    `UPDATE users SET mcp_token_hash = $1 WHERE id = $2`,
+    [hash, userId]
+  );
+}
+
+async function findUserByMcpTokenHash(hash) {
+  const result = await pool.query(
+    `SELECT id, name, role FROM users WHERE mcp_token_hash = $1`,
+    [hash]
+  );
+  return result.rows[0];
+}
+
 module.exports = {
   createUsersTable,
+  addMcpTokenHashColumn,
   createUser,
   findUserByEmail,
+  setMcpTokenHash,
+  findUserByMcpTokenHash,
 };
