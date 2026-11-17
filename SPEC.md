@@ -101,6 +101,12 @@ The organizer-only check of `POST /api/events/description-suggestion` is in the 
 - [AC-26] When the model answers with an empty text or more than 80 words, the suggestion is discarded and the organizer gets the same message.
 - [AC-27] A member who is not an organizer gets 403, and a visitor without a session gets 401.
 
+### Slice 4: sign in with Google
+- [AC-28] A visitor whose Google email is verified and not in `users` gets one new member row (role member, Google id saved, no password) and lands on /events signed in.
+- [AC-29] A visitor whose verified Google email is already in `users` signs in to that same row; the Google id is saved on it and no second row is created.
+- [AC-30] A Google account whose email is not verified gets 403 and no row is created.
+- [AC-31] A callback with a wrong or missing state, or with no login started in this session, gets 400 and nobody is signed in.
+
 ## Traceability
 <!-- Filled in from Exercise 3 onward: each AC id, and the test that names it. -->
 | Criterion | Test |
@@ -119,6 +125,10 @@ The organizer-only check of `POST /api/events/description-suggestion` is in the 
 | AC-25 | test/descriptionService.test.js, test/descriptionApi.test.js |
 | AC-26 | test/descriptionService.test.js |
 | AC-27 | test/descriptionApi.test.js |
+| AC-28 | test/googleAuth.test.js, test/googleAuthApi.test.js |
+| AC-29 | test/googleAuth.test.js |
+| AC-30 | test/googleAuth.test.js, test/googleAuthApi.test.js |
+| AC-31 | test/googleAuthApi.test.js |
 | AC-23 | test/registrationsApi.test.js, test/cancelApi.test.js |
 
 ## Spec vs result
@@ -128,3 +138,4 @@ The organizer-only check of `POST /api/events/description-suggestion` is in the 
 - Changed: AC-19 now says the date and start time are shown in hours and minutes, with no seconds, and the events page was changed to match.
 - Changed (Exercise 3): removed the waiting list and ratings criteria (old AC-4 to AC-15, ids retired) to build the sign-up feature, the model feature and the MCP tools well; replaced get_event_ratings with sign_up_for_event.
 - Changed (Exercise 3): the model feature uses gemini-3.5-flash-lite instead of gemini-3.8-flash, which hung in every agent session; added slice 3 (AC-24 to AC-27) so the model feature and its fallback are tested. The create-event screen is left for later.
+- Changed (Exercise 4): added slice 4 (AC-28 to AC-31) to build sign in with Google; the account-linking rule in Auth did not change. The callback checks a one-time state and uses PKCE, and the Google HTTP calls live in src/lib/googleOAuthClient.js, so tests replace them with a fake.
