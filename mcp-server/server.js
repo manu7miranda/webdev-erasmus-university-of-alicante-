@@ -34,10 +34,46 @@ const TOOLS = [
         }
       }
     }
+  },
+  {
+    name: 'list_upcoming_events',
+    description: 'Lists the upcoming events with their id, title, date, total places and free places.',
+    inputSchema: {
+      type: 'object',
+      properties: {}
+    }
+  },
+  {
+    name: 'get_event',
+    description: 'Given an event id, returns its title, date, description and free places.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        eventId: {
+          type: 'number',
+          description: 'The id of the event.'
+        }
+      },
+      required: ['eventId']
+    }
+  },
+  {
+    name: 'sign_up_for_event',
+    description: 'Signs the calling member up for an event by id. Refuses a full event or a second sign-up.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        eventId: {
+          type: 'number',
+          description: 'The id of the event.'
+        }
+      },
+      required: ['eventId']
+    }
   }
 ];
 
-rl.on('line', (line) => {
+rl.on('line', async (line) => {
   console.error('got: ' + line);
 
   const msg = JSON.parse(line);
@@ -140,6 +176,48 @@ rl.on('line', (line) => {
         }
       };
       return console.log(JSON.stringify(response));
+    }
+
+    // Project tools: they act as the member who owns MCP_TOKEN and reuse the
+    // same service functions as the HTTP API. Services are loaded here, not at
+    // the top, so the server still starts without a database (CI mcp job).
+    const projectTools = ['list_upcoming_events', 'get_event', 'sign_up_for_event'];
+    if (projectTools.includes(toolName)) {
+      const reply = (text, isError) => console.log(JSON.stringify({
+        jsonrpc: '2.0',
+        id: msg.id,
+        result: { content: [{ type: 'text', text }], isError }
+      }));
+      try {
+        const { authenticateMcpToken } = require('../src/services/mcpAuthService');
+        const caller = await authenticateMcpToken(process.env.MCP_TOKEN);
+        if (!caller) {
+          return reply('Not signed in: set MCP_TOKEN to a valid token.', true);
+        }
+        const args = msg.params?.arguments || {};
+
+        if (toolName === 'list_upcoming_events') {
+          const { getUpcomingEvents } = require('../src/services/eventService');
+          return reply(JSON.stringify(await getUpcomingEvents(caller.id)), false);
+        }
+
+        if (toolName === 'get_event') {
+          const { getEvent } = require('../src/services/eventService');
+          const event = await getEvent(args.eventId);
+          if (!event) {
+            return reply(`Event ${args.eventId} not found.`, true);
+          }
+          return reply(JSON.stringify(event), false);
+        }
+
+        // sign_up_for_event: always the caller, never a user id from the arguments
+        const { signUpForEvent } = require('../src/services/registrationService');
+        const registration = await signUpForEvent(args.eventId, caller.id);
+        return reply(`${caller.name} is signed up for event ${registration.event_id}.`, false);
+      } catch (err) {
+        const ruleErrors = ['EventFull', 'AlreadySignedUp', 'EventNotFound'];
+        return reply(ruleErrors.includes(err.name) ? err.name : 'The tool failed.', true);
+      }
     }
 
     // Caso 2: Herramienta desconocida
