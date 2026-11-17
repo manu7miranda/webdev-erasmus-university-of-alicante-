@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { authenticateUser } = require('../services/authService');
 const { getUpcomingEvents } = require('../services/eventService');
+const { signUpForEvent, EventFull, AlreadySignedUp, EventNotFound } = require('../services/registrationService');
 
 router.post('/login', async (req, res) => {
   try {
@@ -52,6 +53,34 @@ router.get('/events', async (req, res) => {
     const events = await getUpcomingEvents();
     res.json(events);
   } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+router.post('/events/:id/registrations', async (req, res) => {
+  if (!req.session || !req.session.user) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  try {
+    const eventId = parseInt(req.params.id, 10);
+    const userId = req.session.user.id;
+    const registration = await signUpForEvent(eventId, userId);
+    res.status(201).json({
+      id: registration.id,
+      event_id: registration.event_id,
+      user_id: registration.user_id,
+      message: 'You are signed up',
+    });
+  } catch (error) {
+    if (error instanceof EventFull) {
+      return res.status(409).json({ error: 'EventFull', message: 'This event is full' });
+    }
+    if (error instanceof AlreadySignedUp) {
+      return res.status(409).json({ error: 'AlreadySignedUp', message: 'You are already signed up' });
+    }
+    if (error instanceof EventNotFound) {
+      return res.status(404).json({ error: 'EventNotFound', message: 'Event not found' });
+    }
     res.status(500).json({ error: 'Internal server error' });
   }
 });
