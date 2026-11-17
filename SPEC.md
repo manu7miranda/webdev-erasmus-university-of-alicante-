@@ -56,8 +56,24 @@ Passwords are stored only as a Has, never as readable text.
 - Each screen has its four states: loading, empty, error and with data. The checklist lives in docs/UI.md.
 
 ## Architecture
-<!-- Exercise 3. One request traced through every layer, naming the file for each one,
-     plus one place where your own code does not match this layering. -->
+### One request: a member signs up for an event
+
+**In the browser**
+1. View: `public/events.html` with `public/assets/events.js` draws each event with a Sign up or a Cancel button. The page is rendered in the browser so the member never sees a blank page: it arrives at once with "Loading events...", and if the API fails it shows a clear message instead of an empty screen.
+2. State: the list of events from `GET /api/events`, held in `events.js`; each event carries `my_registration_id`. After every click, `loadEvents()` asks for the list again. The real number of free places lives in the database, not in the browser. Asking for the list again after each click is the simplest way to always show the true state, including sign-ups made by other members at the same time. It costs one extra request per click, which is fine for a short list.
+3. REST call: the click handler in `events.js` sends `fetch('POST /api/events/:id/registrations')` and shows the `message` from the answer.
+
+**On the server**
+4. Route: `src/routes/api.js` receives the request. It answers 401 if there is no session, calls the service, and turns `EventFull` and `AlreadySignedUp` into 409 and `EventNotFound` into 404. It holds no rule.
+5. Service: `signUpForEvent(eventId, userId)` in `src/services/registrationService.js` holds the rule. In one transaction it locks the event row with SELECT ... FOR UPDATE, then checks in this order: the event exists (EventNotFound), the member is not already signed up (AlreadySignedUp), and there is a free place (EventFull); if all pass, it inserts the registration and commits, and on any error it rolls back. The lock matters when two members try to take the last place at the same moment: the second one waits until the first has finished, counts again, and gets EventFull, so an event never has more sign-ups than places.
+6. Database: `lockEventById` in `src/db/events.js`, and `countRegistrationsForEvent` and `createRegistration` in `src/db/registrations.js`. Only this layer writes SQL, always with parameters.
+7. What crosses back to the client: 201 with `{ id, event_id, user_id, message }`, or 409 with `{ error, message }`. Never a database row with a password hash or a token.
+
+**MCP**
+The tool `sign_up_for_event` in `mcp-server/server.js` enters at step 5: it calls the same `signUpForEvent` as the route, as the member who owns `MCP_TOKEN`. Entering at the service means the rules are written once and protect every way in. If the tool had its own query, it would be a second path to the registrations table with none of the rules on it, and a future rule added to the service would silently not apply over MCP. When I signed up twice through MCP, the second call returned AlreadySignedUp without any rule in the MCP server.
+
+### Where my code does not match the layering
+The organizer-only check of `POST /api/events/description-suggestion` is in the route (`src/routes/api.js`), not in a service. I leave it there for now: it is a one-line access check, like the 401 next to it, and today the route is the only way to reach the description suggestion. The risk is that a future MCP tool for suggestions would not have this check, so if I add one, I will move the organizer check into the service first.
 
 ## Acceptance criteria
 <!-- Every criterion carries an id. A test proves it by naming that id in its title, for example
