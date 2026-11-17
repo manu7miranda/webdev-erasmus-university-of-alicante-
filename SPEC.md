@@ -99,10 +99,10 @@ Passwords are stored only as a Has, never as readable text.
 | AC-20 | test/slice1Api.test.js |
 | AC-21 | test/registrationService.test.js, test/cancelApi.test.js |
 | AC-22 | test/registrationService.test.js, test/cancelApi.test.js |
-| AC-24 |  |
-| AC-25 |  |
-| AC-26 |  |
-| AC-27 |  |
+| AC-24 | test/descriptionService.test.js |
+| AC-25 | test/descriptionService.test.js, test/descriptionApi.test.js |
+| AC-26 | test/descriptionService.test.js |
+| AC-27 | test/descriptionApi.test.js |
 | AC-23 | test/registrationsApi.test.js, test/cancelApi.test.js |
 
 ## Spec vs result

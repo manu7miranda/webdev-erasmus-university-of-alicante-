@@ -3,6 +3,8 @@ const router = express.Router();
 const { authenticateUser } = require('../services/authService');
 const { getUpcomingEvents } = require('../services/eventService');
 const { signUpForEvent, cancelRegistration, EventFull, AlreadySignedUp, EventNotFound, NotOwner } = require('../services/registrationService');
+const { suggestDescription } = require('../services/descriptionService');
+const { createGeminiClient } = require('../lib/geminiClient');
 
 router.post('/login', async (req, res) => {
   try {
@@ -98,6 +100,22 @@ router.delete('/registrations/:id', async (req, res) => {
     if (error instanceof NotOwner) {
       return res.status(403).json({ error: 'NotOwner', message: 'You can only cancel your own sign-up' });
     }
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+router.post('/events/description-suggestion', async (req, res) => {
+  if (!req.session || !req.session.user) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  if (req.session.user.role !== 'organizer') {
+    return res.status(403).json({ error: 'NotOrganizer' });
+  }
+  try {
+    const { notes } = req.body;
+    const result = await suggestDescription(notes, { client: createGeminiClient() });
+    res.json(result);
+  } catch (error) {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
