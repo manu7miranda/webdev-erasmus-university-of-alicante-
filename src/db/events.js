@@ -23,15 +23,17 @@ async function createEvent({ title, description, date, organizer_id, total_place
   return result.rows[0];
 }
 
-async function listUpcomingEvents() {
+async function listUpcomingEvents(userId) {
   const result = await pool.query(
     `SELECT e.id, e.title, e.description, e.date, e.organizer_id, e.total_places,
-            (e.total_places - COUNT(r.id))::int AS free_places
+            (e.total_places - COUNT(r.id))::int AS free_places,
+            MAX(CASE WHEN r.user_id = $1 THEN r.id END) AS my_registration_id
      FROM events e
      LEFT JOIN registrations r ON r.event_id = e.id
      WHERE e.date >= NOW()
      GROUP BY e.id
-     ORDER BY e.date ASC`
+     ORDER BY e.date ASC`,
+    [userId]
   );
   return result.rows;
 }

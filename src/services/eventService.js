@@ -1,7 +1,7 @@
 const { listUpcomingEvents } = require('../db/events');
 
-async function getUpcomingEvents() {
-  const events = await listUpcomingEvents();
+async function getUpcomingEvents(userId) {
+  const events = await listUpcomingEvents(userId);
   return events;
 }
 

@@ -50,7 +50,7 @@ router.get('/events', async (req, res) => {
     return res.status(401).json({ error: 'Unauthorized' });
   }
   try {
-    const events = await getUpcomingEvents();
+    const events = await getUpcomingEvents(req.session.user.id);
     res.json(events);
   } catch (error) {
     res.status(500).json({ error: 'Internal server error' });
