@@ -102,3 +102,12 @@ Changed in review: the first plan was cut off and duplicated; I fixed the endpoi
 - Result: the service passed the 5 rule tests on the first try, with no SQL in it and AlreadySignedUp checked before EventFull. The CI test job is green with its own PostgreSQL.
 - Decision: cancelling a registration that does not exist also returns NotOwner (403), so the ids of other members' sign-ups are not revealed; changed from the plan (404).
 - Went wrong: the API step failed three times with "Incomplete JSON" and once with a rate limit; stopped for today. It kept reading checks/lib.mjs on every request.
+
+## 2026-11-17 · Slice 2 API and UI, slice 1 tests, model feature service
+
+- Goal: finish slice 2 (endpoints, authorization, UI), add tests for slice 1, and start the model feature (slice 3).
+- Autonomy and checkpoints: one small step at a time, tests first; I read every diff, ran npm test and committed after each step.
+- Result: POST and DELETE routes with API tests (201, 409, 401, 204, 403), Sign up and Cancel buttons on /events, tests for AC-16 to AC-20, and the description suggestion service with its timeout, fallback and fake-client tests. Checked by hand: the tests fail with the event-full rule commented out (step 6), and curl gave 201, 409, 401, 403, 401, 204 (step 7).
+- Went wrong: "Incomplete JSON" and rate-limit errors again; once it spent minutes re-reading the same files and running git log instead of writing the test; it kept asking to run npm test after I had run it; it put the Gemini API key in the URL; its summary claimed it had built things I did by hand.
+- Changed by hand: the error-name checks in the AC-2 and AC-3 API tests; the clearer empty and error texts in events.html; the traceability table; the CI postgres service. I accepted the slice 3 criteria proposed by my tutor after reviewing them.
+- Next: the route for the description suggestion (AC-24 to AC-27), then the MCP tools, the architecture note, and steps 9 to 11.
