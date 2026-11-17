@@ -73,12 +73,12 @@ test('a model answer that is not text gives the fallback', async () => {
   assert.strictEqual(result.suggestion, null);
 });
 
-test.skip('signing up for an event that does not exist throws EventNotFound', async () => {
+test('signing up for an event that does not exist throws EventNotFound', async () => {
   const member = await createUser({ email: 'mem@club.com', password_hash: 'hash', name: 'Member' });
   await assert.rejects(() => signUpForEvent(999999, member.id), (err) => err instanceof EventNotFound);
 });
 
-test.skip('cancelling a registration that does not exist throws NotOwner', async () => {
+test('cancelling a registration that does not exist throws NotOwner', async () => {
   const member = await createUser({ email: 'mem@club.com', password_hash: 'hash', name: 'Member' });
   await assert.rejects(() => cancelRegistration(999999, member.id), (err) => err instanceof NotOwner);
 });
