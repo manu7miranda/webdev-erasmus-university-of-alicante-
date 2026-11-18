@@ -11,56 +11,67 @@ the text is readable, and nothing jumps around while it loads.
 
 ## Layout and typography
 
-- [ ] **One spacing scale and one type scale.** Sizes come from a small set of design tokens, not from numbers typed where they were needed.
-  - how I checked:
-- [ ] **Responsive at 380, 768 and 1280 pixels wide.** No horizontal scrollbar, no text running under another element.
-  - how I checked:
-- [ ] **Nothing jumps while the page loads.** Images and cards reserve their space before their content arrives.
-  - how I checked:
+- [x] **One spacing scale and one type scale.** Sizes come from a small set of design tokens, not from numbers typed where they were needed.
+  - how I checked: `public/assets/style.css` starts with a `:root` list of tokens (`--space-1` to `--space-6`, `--text-sm`, `--text-md`, `--text-lg`, colours). Every padding, margin, gap and font size uses `var(...)`. The only numbers left are borders, the shadow and the focus outline.
+- [x] **Responsive at 380, 768 and 1280 pixels wide.** No horizontal scrollbar, no text running under another element.
+  - how I checked: Edge DevTools, device toolbar (Ctrl+Shift+M), widths 380, 768 and 1280 on `/events`. No horizontal scrollbar and nothing on top of other things. At 380 the title and "Sign Out" go to two lines. Screenshots: `docs/ui/responsive-380.png`, `responsive-768.png`, `responsive-1280.png`.
+- [x] **Nothing jumps while the page loads.** Images and cards reserve their space before their content arrives.
+  - how I checked: Lighthouse (mobile) on `/events`: Cumulative Layout Shift 0. After my first UI changes it was 0.346, because the box was centred and moved up when the list arrived. I put the box at the top (`align-self: flex-start`) and it went back to 0.
 
 ## The four states, on every screen
 
 A screen that only handles "it worked" is a screen that lies to the user on the day it matters.
 
-- [ ] **Loading.** Something tells the user the app is working, within about 100 ms.
-  - how I checked:
-- [ ] **Empty.** The screen says what this list is for and what to do next, instead of showing nothing.
-  - how I checked:
-- [ ] **Error.** A sentence a person can read. Never a raw JSON body, never a stack trace, never just "Error".
-  - how I checked:
-- [ ] **Success.** The user can see that what they did took effect, without reloading the page to find out.
-  - how I checked:
+- [x] **Loading.** Something tells the user the app is working, within about 100 ms.
+  - how I checked: "Loading events..." and "Welcome, Loading..." are in the HTML itself, so they appear with the page, before any request. Seen on the live site with Slow 4G (`docs/ui/events-loading.png`). `/login` loads no data.
+- [x] **Empty.** The screen says what this list is for and what to do next, instead of showing nothing.
+  - how I checked: locally, after deleting all events: "No upcoming events yet. New events will appear here as soon as an organizer creates them." (`docs/ui/events-empty.png`).
+- [x] **Error.** A sentence a person can read. Never a raw JSON body, never a stack trace, never just "Error".
+  - how I checked: locally, signed in, then `docker stop club-db` and reload: "Could not load the events. Check your connection and reload the page." (`docs/ui/events-error.png`). Sign-in with the database down: "An error occurred. Please try again." (`docs/ui/login-db-down.png`).
+- [x] **Success.** The user can see that what they did took effect, without reloading the page to find out.
+  - how I checked: on the live site I clicked Sign up: a green "You are signed up" appears, the button changes to Cancel and the free places go down by one, with no page reload.
 
 ## Keyboard and accessibility
 
-- [ ] **The main flow works with the keyboard alone.** Sign in, do the core action, sign out, without touching the mouse.
-  - how I checked:
-- [ ] **The focused element is visible.** A `:focus-visible` outline that is not switched off.
-  - how I checked:
-- [ ] **Text contrast is at least 4.5:1.** Name the tool you measured with.
-  - how I checked:
-- [ ] **Every input has a label** a screen reader reads, not just placeholder text.
-  - how I checked:
-- [ ] **The page has a correct `<title>` and `lang`.**
-  - how I checked:
-- [ ] **Touch targets are at least 44 pixels.**
-  - how I checked:
+- [x] **The main flow works with the keyboard alone.** Sign in, do the core action, sign out, without touching the mouse.
+  - how I checked: on the live site, only Tab and Enter: signed in, signed up for an event and cancelled it, and signed out.
+- [x] **The focused element is visible.** A `:focus-visible` outline that is not switched off.
+  - how I checked: `style.css` has `:focus-visible { outline: 3px solid ... }`. Pressing Tab on `/login` and `/events`, I could always see the blue outline on the current element.
+- [x] **Text contrast is at least 4.5:1.** Name the tool you measured with.
+  - how I checked: Lighthouse in Edge DevTools. The first run found low contrast (grey Sign Out button and green message) and gave Accessibility 82. I changed the colours to `#636366` and `#1e7f3a` and the next run gave Accessibility 100.
+- [x] **Every input has a label** a screen reader reads, not just placeholder text.
+  - how I checked: in `login.html` both inputs are inside a `<label>` ("Email", "Password"). Lighthouse Accessibility 100 includes the check "form elements have associated labels".
+- [x] **The page has a correct `<title>` and `lang`.**
+  - how I checked: both pages have `<html lang="en">`. Titles: "Sign In - Club Events" and "Upcoming Tennis Events - Club Events".
+- [x] **Touch targets are at least 44 pixels.**
+  - how I checked: buttons and the Google link have `min-height: var(--touch)` (44px) in `style.css`. In DevTools, the element picker shows the Sign Out button 44 px high.
 
 ## The model feature
 
 - [ ] **It shows that it is thinking.** A model call is slow and a free service may have been asleep; a frozen button is the worst possible answer.
-  - how I checked:
+  - how I checked: not possible yet. There is no screen for the model feature (the create-event screen is not built). It works through the API only (READINESS.md section 8). Listed in READINESS.md known gaps.
 - [ ] **It shows when it failed,** and the rest of the screen still works.
-  - how I checked:
+  - how I checked: not possible yet, no screen. Through the API, a failure returns 200 with "Suggestion not available, write the description yourself" (READINESS.md section 8). Listed in READINESS.md known gaps.
 - [ ] **The user can tell the model's suggestion from a fact.** It is labelled as a suggestion, not presented as data the app knows.
-  - how I checked:
+  - how I checked: not possible yet, no screen. The API returns it in a field called `suggestion`. Listed in READINESS.md known gaps.
 
 ## Decisions
 
-- [ ] **Dark mode, or a written decision not to have one.**
-  - what I decided and why:
+- [x] **Dark mode, or a written decision not to have one.**
+  - what I decided and why: no dark mode. The app has two short screens and members use it for a few seconds to sign up. I prefer to spend the time on the known gaps in READINESS.md.
 
 ## Evidence
 
 <!-- Screenshots of at least the four states of one screen, and of the model feature
      thinking and failing. A link to them is enough; they do not have to be in the repo. -->
+
+Four states of `/events`:
+
+- ![the loading state](ui/events-loading.png)
+- ![the content state](ui/events-content-after-ui-fixes.png)
+- ![the empty state](ui/events-empty.png)
+- ![the error state](ui/events-error.png)
+
+Responsive: ![380 px](ui/responsive-380.png) ![768 px](ui/responsive-768.png) ![1280 px](ui/responsive-1280.png)
+
+Model feature: there is no screen yet, so there are no screenshots of it thinking or failing. The API answers are in READINESS.md section 8.

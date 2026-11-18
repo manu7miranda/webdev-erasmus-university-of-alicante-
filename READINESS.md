@@ -96,6 +96,9 @@ How I checked: I read the `set-cookie` header of `POST /api/login` with `curl -i
 7. **`X-Powered-By: Express` header** shows the framework.
    Next step: `app.disable('x-powered-by')`.
    How I checked: it is in every `curl -i` answer.
+8. **No screen for the model feature.** Organizers can only use it through the API, so the three model items in `docs/UI.md` (thinking, failed, labelled as a suggestion) are not ticked.
+   Next step: build the create-event screen with a "Suggest description" button, a "Thinking..." state and the fallback message.
+   How I checked: there is no page that calls `/api/events/description-suggestion`; I tested it only with curl (section 8).
 
 ## 8. Model feature
 
