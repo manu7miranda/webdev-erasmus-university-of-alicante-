@@ -80,7 +80,7 @@ The organizer-only check of `POST /api/events/description-suggestion` is in the 
 | Screen | Rendered | Why | While the data is on its way |
 |---|---|---|---|
 | `/login` | In the browser, as a fixed HTML page | It is only a form and needs no data, so the server sends the same file to everyone. The real checks (password, session) happen on the server when the form is sent. | Nothing to wait for: the form appears as soon as the HTML arrives. |
-| `/events` | In the browser | Free places change when other members sign up, and the true number lives in the database. After every Sign up or Cancel, `events.js` asks `/api/events` again and repaints only the list, so the member always sees the real state without reloading the page. The header is painted first, so the page is never blank. | The heading and Sign Out appear at once, with "Welcome, Loading..." and "Loading events..." until `/api/me` and `/api/events` answer (Finish 2.54 s on Slow 4G). If the request fails, the list is replaced by "Could not load the events. Check your connection and reload the page." |
+| `/events` | In the browser | Free places change when other members sign up, and the true number lives in the database. After every Sign up or Cancel, `events.js` asks `/api/events` again and repaints only the list, so the member always sees the real state without reloading the page. The header is painted first, so the page is never blank. The Sports events and Social events tabs only filter the list that is already loaded, so they add no request. | The heading and Sign Out appear at once, with "Welcome, Loading..." and "Loading events..." until `/api/me` and `/api/events` answer (Finish 2.54 s on Slow 4G). If the request fails, the list is replaced by "Could not load the events. Check your connection and reload the page." |
 
 ## Acceptance criteria
 <!-- Every criterion carries an id. A test proves it by naming that id in its title, for example
@@ -114,6 +114,10 @@ The organizer-only check of `POST /api/events/description-suggestion` is in the 
 - [AC-30] A Google account whose email is not verified gets 403 and no row is created.
 - [AC-31] A callback with a wrong or missing state, or with no login started in this session, gets 400 and nobody is signed in.
 
+### Slice 5: sports and social events
+- [AC-32] `GET /api/events` returns each event with its category, `sport` or `social`; an event created without a category is a sport event.
+- [AC-33] The database refuses an event whose category is not `sport` or `social`, and no row is created.
+
 ## Traceability
 <!-- Filled in from Exercise 3 onward: each AC id, and the test that names it. -->
 | Criterion | Test |
@@ -136,6 +140,8 @@ The organizer-only check of `POST /api/events/description-suggestion` is in the 
 | AC-29 | test/googleAuth.test.js |
 | AC-30 | test/googleAuth.test.js, test/googleAuthApi.test.js |
 | AC-31 | test/googleAuthApi.test.js |
+| AC-32 | test/categoryApi.test.js |
+| AC-33 | test/categoryApi.test.js |
 | AC-23 | test/registrationsApi.test.js, test/cancelApi.test.js |
 
 ## Spec vs result
@@ -146,3 +152,4 @@ The organizer-only check of `POST /api/events/description-suggestion` is in the 
 - Changed (Exercise 3): removed the waiting list and ratings criteria (old AC-4 to AC-15, ids retired) to build the sign-up feature, the model feature and the MCP tools well; replaced get_event_ratings with sign_up_for_event.
 - Changed (Exercise 3): the model feature uses gemini-3.5-flash-lite instead of gemini-3.8-flash, which hung in every agent session; added slice 3 (AC-24 to AC-27) so the model feature and its fallback are tested. The create-event screen is left for later.
 - Changed (Exercise 4): added slice 4 (AC-28 to AC-31) to build sign in with Google; the account-linking rule in Auth did not change. The callback checks a one-time state and uses PKCE, and the Google HTTP calls live in src/lib/googleOAuthClient.js, so tests replace them with a fake.
+- Changed (after Exercise 4): added slice 5 (AC-32, AC-33): events have a category, sport or social, shown in two tabs on /events, sports first. Social events keep a place limit like sports events, to keep the sign-up rule the same.

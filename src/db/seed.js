@@ -1,6 +1,6 @@
 const bcrypt = require('bcryptjs');
 const { createUser, findUserByEmail, createUsersTable } = require('./users');
-const { createEvent, listUpcomingEvents, createEventsTable } = require('./events');
+const { createEvent, listUpcomingEvents, createEventsTable, addEventCategoryColumn } = require('./events');
 const pool = require('./pool');
 
 async function seed() {
@@ -10,6 +10,7 @@ async function seed() {
     // Ensure tables exist just in case
     await createUsersTable();
     await createEventsTable();
+    await addEventCategoryColumn();
 
     // 1. Seed users (one organizer, one member)
     const organizerEmail = 'organizer@club.com';
@@ -92,6 +93,31 @@ async function seed() {
       console.log('Seeded 4 events (3 upcoming, 1 past).');
     } else {
       console.log('Events already exist');
+    }
+
+    // 3. Seed social events once
+    const socialResult = await pool.query("SELECT COUNT(*) FROM events WHERE category = 'social'");
+    if (parseInt(socialResult.rows[0].count, 10) === 0) {
+      const now = new Date();
+      await createEvent({
+        title: 'Friday Social Mixer',
+        description: 'Drinks and snacks at the clubhouse after the evening games.',
+        date: new Date(now.getTime() + 10 * 24 * 60 * 60 * 1000),
+        organizer_id: organizer.id,
+        total_places: 40,
+        category: 'social',
+      });
+      await createEvent({
+        title: 'Club Christmas Dinner',
+        description: 'Our end-of-year dinner for members and their families.',
+        date: new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000),
+        organizer_id: organizer.id,
+        total_places: 60,
+        category: 'social',
+      });
+      console.log('Seeded 2 social events.');
+    } else {
+      console.log('Social events already exist');
     }
 
     console.log('Seeding completed successfully.');

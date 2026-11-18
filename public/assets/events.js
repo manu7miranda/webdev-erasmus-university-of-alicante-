@@ -5,10 +5,21 @@ document.addEventListener('DOMContentLoaded', async () => {
   const errorState = document.getElementById('error-state');
   const dataState = document.getElementById('data-state');
   const logoutBtn = document.getElementById('logout-btn');
-
   const eventsContainer = document.getElementById('events-container');
+  const tabs = Array.from(document.querySelectorAll('[role="tab"]'));
+
+  const EMPTY_TEXT = {
+    sport: 'No upcoming sports events yet. New ones will appear here as soon as an organizer creates them.',
+    social: 'No upcoming social events yet. New ones will appear here as soon as an organizer creates them.',
+  };
+
+  // The list from the server is kept here; the tabs only filter it, they never fetch.
+  let allEvents = [];
+  let currentCategory = 'sport';
+
   const notificationEl = document.createElement('div');
   notificationEl.id = 'notification-banner';
+  notificationEl.setAttribute('role', 'status');
   notificationEl.style.marginBottom = '16px';
   notificationEl.style.fontWeight = 'bold';
   eventsContainer.parentNode.insertBefore(notificationEl, eventsContainer);
@@ -27,6 +38,104 @@ document.addEventListener('DOMContentLoaded', async () => {
     return;
   }
 
+  function selectTab(tab, moveFocus) {
+    currentCategory = tab.dataset.category;
+    tabs.forEach((t) => {
+      const selected = t === tab;
+      t.setAttribute('aria-selected', String(selected));
+      t.tabIndex = selected ? 0 : -1;
+    });
+    eventsContainer.setAttribute('aria-labelledby', tab.id);
+    if (moveFocus) tab.focus();
+    render();
+  }
+
+  tabs.forEach((tab, index) => {
+    tab.addEventListener('click', () => selectTab(tab, false));
+    tab.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+        const step = e.key === 'ArrowRight' ? 1 : -1;
+        selectTab(tabs[(index + step + tabs.length) % tabs.length], true);
+        e.preventDefault();
+      }
+    });
+  });
+
+  function render() {
+    const events = allEvents.filter((event) => event.category === currentCategory);
+
+    if (events.length === 0) {
+      dataState.style.display = 'none';
+      emptyState.textContent = EMPTY_TEXT[currentCategory];
+      emptyState.style.display = 'block';
+      return;
+    }
+
+    emptyState.style.display = 'none';
+    dataState.style.display = 'block';
+    dataState.innerHTML = events.map(event => `
+      <div class="event-card">
+        <h2>${escapeHtml(event.title)}</h2>
+        <div class="event-meta">
+          <p><strong>Date:</strong> ${new Date(event.date).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}</p>
+          <p><strong>Free Places:</strong> ${event.free_places} / ${event.total_places}</p>
+          ${event.description ? `<p>${escapeHtml(event.description)}</p>` : ''}
+          <div style="margin-top: 12px;">
+            ${
+              event.my_registration_id == null
+                ? `<button class="action-btn signup-btn" data-event-id="${event.id}">Sign up</button>`
+                : `<button class="action-btn cancel-btn" data-reg-id="${event.my_registration_id}">Cancel</button>`
+            }
+          </div>
+        </div>
+      </div>
+    `).join('');
+
+    dataState.querySelectorAll('.action-btn').forEach(button => {
+      button.addEventListener('click', async () => {
+        button.disabled = true;
+        notificationEl.textContent = '';
+
+        try {
+          if (button.classList.contains('signup-btn')) {
+            const eventId = button.getAttribute('data-event-id');
+            const res = await fetch(`/api/events/${eventId}/registrations`, {
+              method: 'POST',
+            });
+            const data = await res.json().catch(() => ({}));
+            if (res.ok) {
+              notificationEl.textContent = data.message || 'You are signed up';
+              notificationEl.style.color = '#1e7f3a';
+            } else {
+              notificationEl.textContent = data.message || data.error || 'Failed to sign up';
+              notificationEl.style.color = '#c4001a';
+              button.disabled = false;
+            }
+          } else if (button.classList.contains('cancel-btn')) {
+            const regId = button.getAttribute('data-reg-id');
+            const res = await fetch(`/api/registrations/${regId}`, {
+              method: 'DELETE',
+            });
+            if (res.status === 204) {
+              notificationEl.textContent = 'Sign-up cancelled';
+              notificationEl.style.color = '#1e7f3a';
+            } else {
+              const data = await res.json().catch(() => ({}));
+              notificationEl.textContent = data.message || data.error || 'Failed to cancel';
+              notificationEl.style.color = '#c4001a';
+              button.disabled = false;
+            }
+          }
+          await loadEvents();
+        } catch (err) {
+          notificationEl.textContent = 'An error occurred';
+          notificationEl.style.color = '#c4001a';
+          button.disabled = false;
+        }
+      });
+    });
+  }
+
   async function loadEvents() {
     loadingState.style.display = 'block';
     emptyState.style.display = 'none';
@@ -42,76 +151,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         throw new Error('Failed to fetch events');
       }
-      const events = await eventsRes.json();
-
+      allEvents = (await eventsRes.json()) || [];
       loadingState.style.display = 'none';
-
-      if (!events || events.length === 0) {
-        emptyState.style.display = 'block';
-      } else {
-        dataState.style.display = 'block';
-        dataState.innerHTML = events.map(event => `
-          <div class="event-card">
-            <h2>${escapeHtml(event.title)}</h2>
-            <div class="event-meta">
-              <p><strong>Date:</strong> ${new Date(event.date).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}</p>
-              <p><strong>Free Places:</strong> ${event.free_places} / ${event.total_places}</p>
-              ${event.description ? `<p>${escapeHtml(event.description)}</p>` : ''}
-              <div style="margin-top: 12px;">
-                ${
-                  event.my_registration_id == null
-                    ? `<button class="action-btn signup-btn" data-event-id="${event.id}">Sign up</button>`
-                    : `<button class="action-btn cancel-btn" data-reg-id="${event.my_registration_id}">Cancel</button>`
-                }
-              </div>
-            </div>
-          </div>
-        `).join('');
-
-        dataState.querySelectorAll('.action-btn').forEach(button => {
-          button.addEventListener('click', async () => {
-            button.disabled = true;
-            notificationEl.textContent = '';
-
-            try {
-              if (button.classList.contains('signup-btn')) {
-                const eventId = button.getAttribute('data-event-id');
-                const res = await fetch(`/api/events/${eventId}/registrations`, {
-                  method: 'POST',
-                });
-                const data = await res.json().catch(() => ({}));
-                if (res.ok) {
-                  notificationEl.textContent = data.message || 'You are signed up';
-                  notificationEl.style.color = '#1e7f3a';
-                } else {
-                  notificationEl.textContent = data.message || data.error || 'Failed to sign up';
-                  notificationEl.style.color = '#d70015';
-                  button.disabled = false;
-                }
-              } else if (button.classList.contains('cancel-btn')) {
-                const regId = button.getAttribute('data-reg-id');
-                const res = await fetch(`/api/registrations/${regId}`, {
-                  method: 'DELETE',
-                });
-                if (res.status === 204) {
-                  notificationEl.textContent = 'Sign-up cancelled';
-                  notificationEl.style.color = '#1e7f3a';
-                } else {
-                  const data = await res.json().catch(() => ({}));
-                  notificationEl.textContent = data.message || data.error || 'Failed to cancel';
-                  notificationEl.style.color = '#d70015';
-                  button.disabled = false;
-                }
-              }
-              await loadEvents();
-            } catch (err) {
-              notificationEl.textContent = 'An error occurred';
-              notificationEl.style.color = '#d70015';
-              button.disabled = false;
-            }
-          });
-        });
-      }
+      render();
     } catch (err) {
       loadingState.style.display = 'none';
       errorState.style.display = 'block';

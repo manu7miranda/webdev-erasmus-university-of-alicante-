@@ -13,19 +13,28 @@ async function createEventsTable() {
   `);
 }
 
-async function createEvent({ title, description, date, organizer_id, total_places }) {
+// Added after the events table existed, so it is a new step, not an edit of the old one.
+async function addEventCategoryColumn() {
+  await pool.query(`
+    ALTER TABLE events
+    ADD COLUMN IF NOT EXISTS category TEXT NOT NULL DEFAULT 'sport'
+    CHECK (category IN ('sport', 'social'));
+  `);
+}
+
+async function createEvent({ title, description, date, organizer_id, total_places, category = 'sport' }) {
   const result = await pool.query(
-    `INSERT INTO events (title, description, date, organizer_id, total_places)
-     VALUES ($1, $2, $3, $4, $5)
-     RETURNING id, title, description, date, organizer_id, total_places`,
-    [title, description, date, organizer_id, total_places]
+    `INSERT INTO events (title, description, date, organizer_id, total_places, category)
+     VALUES ($1, $2, $3, $4, $5, $6)
+     RETURNING id, title, description, date, organizer_id, total_places, category`,
+    [title, description, date, organizer_id, total_places, category]
   );
   return result.rows[0];
 }
 
 async function listUpcomingEvents(userId) {
   const result = await pool.query(
-    `SELECT e.id, e.title, e.description, e.date, e.organizer_id, e.total_places,
+    `SELECT e.id, e.title, e.description, e.date, e.organizer_id, e.total_places, e.category,
             (e.total_places - COUNT(r.id))::int AS free_places,
             MAX(CASE WHEN r.user_id = $1 THEN r.id END) AS my_registration_id
      FROM events e
@@ -40,7 +49,7 @@ async function listUpcomingEvents(userId) {
 
 async function getEventById(id) {
   const result = await pool.query(
-    `SELECT e.id, e.title, e.description, e.date, e.organizer_id, e.total_places,
+    `SELECT e.id, e.title, e.description, e.date, e.organizer_id, e.total_places, e.category,
             (e.total_places - COUNT(r.id))::int AS free_places
      FROM events e
      LEFT JOIN registrations r ON r.event_id = e.id
@@ -64,6 +73,7 @@ async function lockEventById(eventId, db = pool) {
 
 module.exports = {
   createEventsTable,
+  addEventCategoryColumn,
   createEvent,
   listUpcomingEvents,
   getEventById,

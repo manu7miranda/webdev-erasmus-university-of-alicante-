@@ -1,6 +1,6 @@
 const { Pool } = require('pg');
 const { createUsersTable, addMcpTokenHashColumn } = require('../src/db/users');
-const { createEventsTable } = require('../src/db/events');
+const { createEventsTable, addEventCategoryColumn } = require('../src/db/events');
 const { createRegistrationsTable } = require('../src/db/registrations');
 
 function validateTestDbUrl() {
@@ -38,6 +38,7 @@ async function setupTestDb() {
   await createUsersTable();
   await addMcpTokenHashColumn();
   await createEventsTable();
+  await addEventCategoryColumn();
   await createRegistrationsTable();
 }
 

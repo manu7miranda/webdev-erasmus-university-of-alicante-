@@ -3,20 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Upcoming Tennis Events - Tennis Club</title>
+  <title>Upcoming Club Events - Tennis Club</title>
   <link rel="stylesheet" href="/assets/style.css">
 </head>
 <body>
   <main class="container container-wide">
     <div class="header-bar">
       <div>
-        <h1>Upcoming Tennis Events</h1>
+        <h1>Upcoming Club Events</h1>
         <p id="welcome-text">Welcome, <span id="user-name">Loading...</span></p>
       </div>
       <button id="logout-btn" class="secondary">Sign Out</button>
     </div>
     
-    <div id="events-container">
+    <div class="tabs" role="tablist" aria-label="Type of event">
+      <button type="button" role="tab" id="tab-sport" data-category="sport" aria-selected="true" aria-controls="events-container">Sports events</button>
+      <button type="button" role="tab" id="tab-social" data-category="social" aria-selected="false" aria-controls="events-container" tabindex="-1">Social events</button>
+    </div>
+
+    <div id="events-container" role="tabpanel" aria-labelledby="tab-sport">
       <div id="loading-state">Loading events...</div>
       <div id="empty-state" style="display: none;">No upcoming events yet. New events will appear here as soon as an organizer creates them.</div>
       <div id="error-state" class="error-message" style="display: none;">Could not load the events. Check your connection and reload the page.</div>
