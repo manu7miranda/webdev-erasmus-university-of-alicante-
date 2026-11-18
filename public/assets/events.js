@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         dataState.style.display = 'block';
         dataState.innerHTML = events.map(event => `
           <div class="event-card">
-            <h3>${escapeHtml(event.title)}</h3>
+            <h2>${escapeHtml(event.title)}</h2>
             <div class="event-meta">
               <p><strong>Date:</strong> ${new Date(event.date).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}</p>
               <p><strong>Free Places:</strong> ${event.free_places} / ${event.total_places}</p>
@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const data = await res.json().catch(() => ({}));
                 if (res.ok) {
                   notificationEl.textContent = data.message || 'You are signed up';
-                  notificationEl.style.color = '#34c759';
+                  notificationEl.style.color = '#1e7f3a';
                 } else {
                   notificationEl.textContent = data.message || data.error || 'Failed to sign up';
                   notificationEl.style.color = '#d70015';
@@ -95,7 +95,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 });
                 if (res.status === 204) {
                   notificationEl.textContent = 'Sign-up cancelled';
-                  notificationEl.style.color = '#34c759';
+                  notificationEl.style.color = '#1e7f3a';
                 } else {
                   const data = await res.json().catch(() => ({}));
                   notificationEl.textContent = data.message || data.error || 'Failed to cancel';

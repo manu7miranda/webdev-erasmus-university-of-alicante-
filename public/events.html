@@ -7,22 +7,22 @@
   <link rel="stylesheet" href="/assets/style.css">
 </head>
 <body>
-  <div class="container" style="max-width: 700px;">
+  <main class="container container-wide">
     <div class="header-bar">
       <div>
         <h1>Upcoming Tennis Events</h1>
         <p id="welcome-text">Welcome, <span id="user-name">Loading...</span></p>
       </div>
-      <button id="logout-btn" style="background-color: #8e8e93; padding: 8px 16px;">Sign Out</button>
+      <button id="logout-btn" class="secondary">Sign Out</button>
     </div>
     
     <div id="events-container">
       <div id="loading-state">Loading events...</div>
       <div id="empty-state" style="display: none;">No upcoming events yet. New events will appear here as soon as an organizer creates them.</div>
-      <div id="error-state" style="display: none; color: #d70015;">Could not load the events. Check your connection and reload the page.</div>
+      <div id="error-state" class="error-message" style="display: none;">Could not load the events. Check your connection and reload the page.</div>
       <div id="data-state" style="display: none;"></div>
     </div>
-  </div>
+  </main>
   <script src="/assets/events.js"></script>
 </body>
 </html>
