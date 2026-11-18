@@ -16,7 +16,7 @@ the text is readable, and nothing jumps around while it loads.
 - [x] **Responsive at 380, 768 and 1280 pixels wide.** No horizontal scrollbar, no text running under another element.
   - how I checked: Edge DevTools, device toolbar (Ctrl+Shift+M), widths 380, 768 and 1280 on `/events`. No horizontal scrollbar and nothing on top of other things. At 380 the title and "Sign Out" go to two lines. Screenshots: `docs/ui/responsive-380.png`, `responsive-768.png`, `responsive-1280.png`.
 - [x] **Nothing jumps while the page loads.** Images and cards reserve their space before their content arrives.
-  - how I checked: Lighthouse (mobile) on `/events`: Cumulative Layout Shift 0. After my first UI changes it was 0.346, because the box was centred and moved up when the list arrived. I put the box at the top (`align-self: flex-start`) and it went back to 0.
+  - how I checked: Lighthouse (mobile) on `/events`: Cumulative Layout Shift 0.003 with the tabs (good is below 0.1). After my first UI changes it was 0.346, because the box was centred and moved up when the list arrived. I put the box at the top (`align-self: flex-start`) and it went back to 0.
 
 ## The four states, on every screen
 
@@ -38,7 +38,7 @@ A screen that only handles "it worked" is a screen that lies to the user on the 
 - [x] **The focused element is visible.** A `:focus-visible` outline that is not switched off.
   - how I checked: `style.css` has `:focus-visible { outline: 3px solid ... }`. Pressing Tab on `/login` and `/events`, I could always see the blue outline on the current element.
 - [x] **Text contrast is at least 4.5:1.** Name the tool you measured with.
-  - how I checked: Lighthouse in Edge DevTools. The first run found low contrast (grey Sign Out button and green message) and gave Accessibility 82. I changed the colours to `#636366` and `#1e7f3a` and the next run gave Accessibility 100.
+  - how I checked: Lighthouse in Edge DevTools. The first run found low contrast (grey Sign Out button and green message) and gave Accessibility 82. I changed the colours and the next run gave Accessibility 100. With the clay court design and the tabs it is still 100.
 - [x] **Every input has a label** a screen reader reads, not just placeholder text.
   - how I checked: in `login.html` both inputs are inside a `<label>` ("Email", "Password"). Lighthouse Accessibility 100 includes the check "form elements have associated labels".
 - [x] **The page has a correct `<title>` and `lang`.**
@@ -68,7 +68,8 @@ A screen that only handles "it worked" is a screen that lies to the user on the 
 Four states of `/events`:
 
 - ![the loading state](ui/events-loading.png)
-- ![the content state](ui/events-content-after-ui-fixes.png)
+- ![the content state, Sports events tab](ui/events-sports-tab.png)
+- ![the Social events tab](ui/events-social-tab.png)
 - ![the empty state](ui/events-empty.png)
 - ![the error state](ui/events-error.png)
 

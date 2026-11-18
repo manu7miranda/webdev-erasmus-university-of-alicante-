@@ -143,6 +143,12 @@ Changed in review: the first plan was cut off and duplicated; I fixed the endpoi
   - In a Google sign-in test Claude assumed /api/me returns the email; it returns the name (AC-16). The test failed and I fixed the check.
 - Changed by hand: the DATABASE_URL in Render; for the CLS problem Claude suggested `align-self: flex-start` and I measured CLS before (0.346) and after (0); the GEMINI_API_KEY in Render (deleted to test the fallback, then added again).
 
+## 2026-11-18 · Sports and social events, clay court design
+
+- Goal and decisions (mine): two tabs on /events, sports first; social events keep a place limit, so the sign-up rule does not change (I chose this simpler option to keep time for the defence); the clay court design, out of three versions I compared; "Welcome to your tennis club" on the sign-in page; the heading "Upcoming Club Events".
+- Code: written by Claude (chat tutor) from these decisions; I reviewed it, ran the tests and tried it locally.
+- Checked by me: 51 tests and the coverage gate pass; I ran the migration on Neon before pushing and checked it (2 social, 4 sport events); CI green and Render deployed it; Lighthouse 97 Performance and 100 Accessibility, Cumulative Layout Shift 0.003.
+
 ## What the agent did that I did not ask for
 
 - Extra files and functions: getEventById in src/db/events.js (kept, read-only and used later by get_event); deleteEvent and ON DELETE CASCADE in slice 1 (removed); a DATABASE_URL check in src/db/pool.js (kept, it matches the no-fallback convention); a refactor of my test guard into validateTestDbUrl (kept, same protection).
