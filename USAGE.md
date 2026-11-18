@@ -15,9 +15,13 @@ One row per agent session. In Gemini CLI, type `/stats` before you quit and copy
 | 2026-11-16 | Gemini CLI (gemini-3.5-flash-lite) | 469766 | 1506 | | $0.1447 |
 | 2026-11-17 | Gemini CLI (gemini-3.5-flash-lite) | 000000 | 0000 | | $0.0000 |
 | 2026-11-17 | Gemini CLI (gemini-3.5-flash-lite) | 1726243 | 6178 | | $0.5333 |
+| 2026-11-17 | Claude (chat tutor), no Gemini CLI | | | not shown | |
+| 2026-11-18 | Claude (chat tutor), no Gemini CLI | | | not shown | |
 
 Prices: Gemini API list price for Gemini 3.5 Flash-Lite ($0.30 / 1M input, $2.50 / 1M output), https://ai.google.dev/gemini-api/docs/pricing. Cached input tokens counted at the full input price. The 13 gemini-3.8-flash requests in the first session returned 0 tokens and cost nothing.
 
 On 2026-10-28, gemini-3.8-flash hung again in two sessions (5 and 8 requests, 0 tokens, no cost); the tokens in those rows come from Gemini CLI's router model. In the third session, 364,840 of the 434,273 input tokens were cache reads, counted at the full input price as above.
 
 On 2026-11-02, one shell command typed into Gemini by mistake was cancelled after /stats, so its tokens are not in the row.
+
+On 2026-11-17 and 2026-11-18 (Exercise 4) I did not use Gemini CLI. I worked with Claude in a chat, which does not show token counts, so those rows have no tokens and no cost.

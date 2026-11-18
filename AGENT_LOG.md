@@ -120,6 +120,29 @@ Changed in review: the first plan was cut off and duplicated; I fixed the endpoi
 - Went wrong: it wandered again, re-reading files and asking to run npm test before writing anything; it put the Gemini API key in the URL; it edited createUsersTable, a migration that had already run; it made findUserByEmail and findUserByMcpTokenHash return more columns than needed. The check found the model client created in the route.
 - Changed by hand: emptied GEMINI_API_KEY in the npm test script so no test calls the real model; moved the model client and the fallback into the service; added addMcpTokenHashColumn to the test helper; wrote scripts/mcp-token.js; rotated my MCP token twice after it appeared on screen. The tool list and tool calls in mcp-server/server.js were written with my tutor's help, and I reviewed and tested them by hand.
 
+## 2026-11-17 · Exercise 4: Docker, coverage gate, deploy, Google sign-in
+
+- Tool: no Gemini CLI session. I worked step by step with Claude (chat tutor): it explained each step and gave me commands; I ran them, read every diff and committed by hand.
+- Goal: Exercise 4 steps 1 to 8.
+- Result: startup check of the required variables, Neon database, /health (200/503), 404 and 400 handlers, Dockerfile, coverage gate (100% services, 80% overall), Render deploy with Auto-Deploy "After CI Checks Pass", and sign in with Google with state and PKCE (AC-28 to AC-31). 49 tests.
+- Written by Claude, reviewed and tested by me: the Google sign-in code (googleOAuthClient.js, googleAuthService.js, the two routes, the tests) and the SPEC.md slice 4 text. I chose to keep the account-linking rule I had already written in SPEC.md.
+- Went wrong: the first deploy failed for 15 minutes because Render had the local DATABASE_URL (localhost), not the Neon one. The log only said "database unreachable:" with an empty message. I added the database host and the error code to the log, saw `localhost` and `ECONNREFUSED`, and fixed the variable. The Google client secret is shown only once; I lost it twice and had to create new ones and delete the old ones. The local test database stopped when the codespace restarted, so all tests failed until I ran `npm run db`.
+- Checked by hand: a failing test (4273ddd) turned CI red and Render did not deploy it; the revert deployed by itself. I signed in with my Gmail on the live site and saw the new row in Neon.
+- Secrets: the Neon password, the session secret and the MCP token appeared on my screen or in the chat and I changed all of them. Real values were typed only into Render, Neon and Google, never into the repository.
+
+## 2026-11-18 · Exercise 4: break it, readiness report, UI checklist
+
+- Tool: no Gemini CLI session. Claude (chat tutor) again, same way of working.
+- Goal: Exercise 4 steps 9 to 16.
+- Result: data survives a redeploy; the three failures, the four states, the waterfall and the security test done on the live site and written down with times; screens table in SPEC.md; READINESS.md; docs/UI.md; UI fixes (design tokens, contrast, heading order, main landmark, 44 px buttons, focus outline); course.json. `node checks/ex4.mjs` in a clean clone: 33/34 (the only FAIL is the three model UI items, listed as gap 8).
+- Written by Claude from my notes and decisions, read and checked by me: the English text of the screens table, READINESS.md and docs/UI.md, and the UI fix script. The decisions were mine: the ranking of the gaps, no dark mode, and fixing the UI instead of leaving it as gaps. For the screens table I answered four questions and Claude wrote the English text; three of my answers needed corrections (for example, I thought the page reloads after Sign up).
+- Went wrong: my UI fix moved the page while it loaded (CLS 0 to 0.346 in Lighthouse); I kept the box at the top and CLS went back to 0. The rollback turned Auto-Deploy off and I turned it on again. `node checks/ex4.mjs` in my codespace says "no .env is committed" because the check only looks for a .env file in the folder; `git ls-files` shows only .env.example and the clean clone passes.
+- Claims about the deployment that proved false:
+  - Claude's command printed "CI VERDE" for my heading commit, but it was watching the previous CI run, which had started before my push. I saw that the run ids did not match and watched the right run.
+  - Claude said a Gemini API key starts with "AIza"; my new key starts with "AQ.". A curl with the key returned 200, so the key was fine.
+  - In a Google sign-in test Claude assumed /api/me returns the email; it returns the name (AC-16). The test failed and I fixed the check.
+- Changed by hand: the DATABASE_URL in Render; for the CLS problem Claude suggested `align-self: flex-start` and I measured CLS before (0.346) and after (0); the GEMINI_API_KEY in Render (deleted to test the fallback, then added again).
+
 ## What the agent did that I did not ask for
 
 - Extra files and functions: getEventById in src/db/events.js (kept, read-only and used later by get_event); deleteEvent and ON DELETE CASCADE in slice 1 (removed); a DATABASE_URL check in src/db/pool.js (kept, it matches the no-fallback convention); a refactor of my test guard into validateTestDbUrl (kept, same protection).
