@@ -75,6 +75,13 @@ The tool `sign_up_for_event` in `mcp-server/server.js` enters at step 5: it call
 ### Where my code does not match the layering
 The organizer-only check of `POST /api/events/description-suggestion` is in the route (`src/routes/api.js`), not in a service. I leave it there for now: it is a one-line access check, like the 401 next to it, and today the route is the only way to reach the description suggestion. The risk is that a future MCP tool for suggestions would not have this check, so if I add one, I will move the organizer check into the service first.
 
+### Screens
+
+| Screen | Rendered | Why | While the data is on its way |
+|---|---|---|---|
+| `/login` | In the browser, as a fixed HTML page | It is only a form and needs no data, so the server sends the same file to everyone. The real checks (password, session) happen on the server when the form is sent. | Nothing to wait for: the form appears as soon as the HTML arrives. |
+| `/events` | In the browser | Free places change when other members sign up, and the true number lives in the database. After every Sign up or Cancel, `events.js` asks `/api/events` again and repaints only the list, so the member always sees the real state without reloading the page. The header is painted first, so the page is never blank. | The heading and Sign Out appear at once, with "Welcome, Loading..." and "Loading events..." until `/api/me` and `/api/events` answer (Finish 2.54 s on Slow 4G). If the request fails, the list is replaced by "Could not load the events. Check your connection and reload the page." |
+
 ## Acceptance criteria
 <!-- Every criterion carries an id. A test proves it by naming that id in its title, for example
      test('AC-3 a booking that overlaps another is refused with 409', ...).
