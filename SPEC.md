@@ -120,6 +120,7 @@ The organizer-only check of `POST /api/events/description-suggestion` is in the 
 
 ### Slice 6: requests the API cannot read
 - [AC-34] A request to the API whose body is not JSON (for example `text/plain` or a form) gets 415 with one sentence, never 500, and nobody is signed in.
+- [AC-38] A sign-up or a cancel whose id is not a whole number from 1 to 2147483647 (for example `abc`) gets 404 EventNotFound (sign-up) or 403 NotOwner (cancel), never 500, and nothing changes.
 
 ### Slice 7: organizers create events
 - [AC-35] An organizer who sends a valid event (title, future date, places, type, optional description) to `POST /api/events` gets 201, and the event appears in `GET /api/events`.
@@ -154,6 +155,7 @@ The organizer-only check of `POST /api/events/description-suggestion` is in the 
 | AC-35 | test/eventCreationService.test.js, test/createEventApi.test.js |
 | AC-36 | test/eventCreationService.test.js, test/createEventApi.test.js |
 | AC-37 | test/eventCreationService.test.js, test/createEventApi.test.js |
+| AC-38 | test/malformedId.test.js |
 | AC-23 | test/registrationsApi.test.js, test/cancelApi.test.js |
 
 ## Spec vs result
