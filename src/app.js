@@ -15,7 +15,16 @@ const app = express();
 app.set('trust proxy', 1);
 
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+
+// The API only reads JSON. A body in another format (text/plain, a form...) is the
+// client's mistake: answer 415 before any route, instead of a 500 later (AC-34).
+app.use('/api', (req, res, next) => {
+  const hasBody = Number(req.headers['content-length'] || 0) > 0 || req.headers['transfer-encoding'] !== undefined;
+  if (hasBody && !req.is('application/json')) {
+    return res.status(415).json({ error: 'Send the body as JSON.' });
+  }
+  next();
+});
 
 app.use(
   session({
