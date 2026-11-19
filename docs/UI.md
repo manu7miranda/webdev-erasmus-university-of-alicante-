@@ -48,12 +48,12 @@ A screen that only handles "it worked" is a screen that lies to the user on the 
 
 ## The model feature
 
-- [ ] **It shows that it is thinking.** A model call is slow and a free service may have been asleep; a frozen button is the worst possible answer.
-  - how I checked: not possible yet. There is no screen for the model feature (the create-event screen is not built). It works through the API only (READINESS.md section 8). Listed in READINESS.md known gaps.
-- [ ] **It shows when it failed,** and the rest of the screen still works.
-  - how I checked: not possible yet, no screen. Through the API, a failure returns 200 with "Suggestion not available, write the description yourself" (READINESS.md section 8). Listed in READINESS.md known gaps.
-- [ ] **The user can tell the model's suggestion from a fact.** It is labelled as a suggestion, not presented as data the app knows.
-  - how I checked: not possible yet, no screen. The API returns it in a field called `suggestion`. Listed in READINESS.md known gaps.
+- [x] **It shows that it is thinking.** A model call is slow and a free service may have been asleep; a frozen button is the worst possible answer.
+  - how I checked: signed in as organizer, clicked "Suggest description": "Thinking... this can take a few seconds." appears at once and the button is disabled until the answer comes (often 3 to 9 s).
+- [x] **It shows when it failed,** and the rest of the screen still works.
+  - how I checked: started the app locally with `GEMINI_API_KEY=` empty and clicked the button: "Suggestion not available, write the description yourself", the button works again and the tabs and events still work (`docs/ui/model-failed.png`).
+- [x] **The user can tell the model's suggestion from a fact.** It is labelled as a suggestion, not presented as data the app knows.
+  - how I checked: the answer appears in a box with a dashed border and the label "Suggestion from the model. Check it before you use it." (`docs/ui/model-suggestion.png`). It is never saved as event data.
 
 ## Decisions
 
@@ -75,4 +75,8 @@ Four states of `/events`:
 
 Responsive: ![380 px](ui/responsive-380.png) ![768 px](ui/responsive-768.png) ![1280 px](ui/responsive-1280.png)
 
-Model feature: there is no screen yet, so there are no screenshots of it thinking or failing. The API answers are in READINESS.md section 8.
+Model feature (organizer):
+
+- ![the suggestion](ui/model-suggestion.png)
+- ![the model failed](ui/model-failed.png)
+- ![the first answer, before the prompt asked for plain text](ui/model-suggestion-markdown.png)

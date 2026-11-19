@@ -90,19 +90,18 @@ How I checked: I read the `set-cookie` header of `POST /api/login` with `curl -i
 5. **Two requests one after another** (about +600 ms on Slow 4G).
    Next step: `Promise.all` in `events.js`.
    How I checked: the waterfall in section 5.
-6. **The model answers in Markdown**, so users would see `**`.
-   Next step: ask for plain text in the prompt.
-   How I checked: the real answer in section 8.
+6. **The model is often slow.** It often takes about 9 s, close to the 10 s timeout, so sometimes the organizer gets the fallback message. I kept 10 s on purpose: waiting longer is worse for the user, and the fallback exists for this.
+   Next step: measure it over more calls and try a faster model or a shorter prompt.
+   How I checked: on 19 Nov I called the service three times in a row: 3.4 s, 9.0 s and 9.0 s.
 7. **`X-Powered-By: Express` header** shows the framework.
    Next step: `app.disable('x-powered-by')`.
    How I checked: it is in every `curl -i` answer.
-8. **No screen for the model feature.** Organizers can only use it through the API, so the three model items in `docs/UI.md` (thinking, failed, labelled as a suggestion) are not ticked.
-   Next step: build the create-event screen with a "Suggest description" button, a "Thinking..." state and the fallback message.
-   How I checked: there is no page that calls `/api/events/description-suggestion`; I tested it only with curl (section 8).
 
 ## 8. Model feature
 
-Organizers get a description of max 80 words. Model: `gemini-3.5-flash-lite`.
+Organizers get a description of max 80 words. Model: `gemini-3.5-flash-lite`. On /events an organizer sees "Describe a new event": notes, a "Suggest description" button, "Thinking..." while waiting, then the suggestion labelled "Suggestion from the model. Check it before you use it", or the fallback message. Members do not see it, and the server still answers 403 to them.
+
+- **Prompt:** the first real answers had Markdown (`**Details:**`), a placeholder (`[Insert Location]`) and a fact that was not in my notes ("Spaces are limited"). Now the prompt asks for plain text, one paragraph, no placeholders, and only facts from the notes. The model is not deterministic, so the label still tells the organizer to check it.
 
 - **Data that leaves the app:** only the organizer's notes.
 - **Cost:** one call = 31 input + 79 output tokens. At $0.30 / $2.50 per million tokens (list price, eesel.ai, 22 July 2026) that is about **$0.00021 per call**.

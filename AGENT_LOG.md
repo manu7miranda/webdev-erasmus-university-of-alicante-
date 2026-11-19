@@ -149,6 +149,13 @@ Changed in review: the first plan was cut off and duplicated; I fixed the endpoi
 - Code: written by Claude (chat tutor) from these decisions; I reviewed it, ran the tests and tried it locally.
 - Checked by me: 51 tests and the coverage gate pass; I ran the migration on Neon before pushing and checked it (2 social, 4 sport events); CI green and Render deployed it; Lighthouse 97 Performance and 100 Accessibility, Cumulative Layout Shift 0.003.
 
+## 2026-11-19 · Model feature screen and prompt
+
+- Goal and decisions (mine): a screen for the model feature so I can show it in the defence; only organizers see it; keep the 10 s timeout even though the model often takes about 9 s; change the prompt after I saw the answers.
+- Code: the screen (events.html, events.js, style.css) written by Claude (chat tutor); I tried it locally as organizer and as member, with the key and without it.
+- Found by me: the first real answers had Markdown, "[Insert Location]" and "Spaces are limited", which was not in my notes. The prompt now asks for plain text and only facts from the notes. The service gave the fallback once: I measured 3.4 s, 9.0 s and 9.0 s, so it was the 10 s timeout, not a bug. Another fallback was my own server still running without the key from the failure test.
+- Went wrong: one of Claude's check commands was wrong (a sed that always printed "defined"), so its first answer about the key meant nothing; the next command checked it properly.
+
 ## What the agent did that I did not ask for
 
 - Extra files and functions: getEventById in src/db/events.js (kept, read-only and used later by get_event); deleteEvent and ON DELETE CASCADE in slice 1 (removed); a DATABASE_URL check in src/db/pool.js (kept, it matches the no-fallback convention); a refactor of my test guard into validateTestDbUrl (kept, same protection).

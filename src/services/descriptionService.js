@@ -13,7 +13,7 @@ async function suggestDescription(notes, { client = createGeminiClient(), timeou
     return fallback();
   }
 
-  const prompt = `Write a short event description (at most 80 words) based on these notes: ${notes}`;
+  const prompt = `Write a short event description (at most 80 words) based on these notes. Answer in plain text, in one paragraph, without Markdown, lists or placeholders. Only use facts from the notes. Notes: ${notes}`;
 
   let timeoutId;
   const timeoutPromise = new Promise((_, reject) => {

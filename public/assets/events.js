@@ -33,9 +33,53 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     const userData = await meRes.json();
     userNameEl.textContent = userData.name;
+    if (userData.role === 'organizer') {
+      setUpSuggestions();
+    }
   } catch (err) {
     window.location.href = '/login';
     return;
+  }
+
+  // Model feature: only organizers get the panel; the server checks the role again (403).
+  function setUpSuggestions() {
+    const panel = document.getElementById('suggest-panel');
+    const notesEl = document.getElementById('suggest-notes');
+    const button = document.getElementById('suggest-btn');
+    const statusEl = document.getElementById('suggest-status');
+    const resultEl = document.getElementById('suggest-result');
+    const textEl = document.getElementById('suggest-text');
+    panel.hidden = false;
+
+    button.addEventListener('click', async () => {
+      const notes = notesEl.value.trim();
+      resultEl.hidden = true;
+      if (!notes) {
+        statusEl.textContent = 'Write a few notes first.';
+        return;
+      }
+      button.disabled = true;
+      statusEl.textContent = 'Thinking... this can take a few seconds.';
+      try {
+        const res = await fetch('/api/events/description-suggestion', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ notes }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (res.ok && data.suggestion) {
+          textEl.textContent = data.suggestion;
+          resultEl.hidden = false;
+          statusEl.textContent = '';
+        } else {
+          statusEl.textContent = data.message || 'Suggestion not available, write the description yourself.';
+        }
+      } catch (err) {
+        statusEl.textContent = 'Could not reach the server. Try again in a moment.';
+      } finally {
+        button.disabled = false;
+      }
+    });
   }
 
   function selectTab(tab, moveFocus) {

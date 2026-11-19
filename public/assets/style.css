@@ -249,3 +249,64 @@ button.secondary {
   background-color: var(--color-primary);
   color: white;
 }
+
+.suggest-panel {
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-left: 6px solid var(--color-primary);
+  border-radius: var(--radius);
+  padding: var(--space-4) var(--space-5);
+  margin-bottom: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.suggest-panel[hidden],
+.suggest-result[hidden] {
+  display: none;
+}
+
+.suggest-panel h2 {
+  font-size: var(--text-lg);
+  margin: 0;
+}
+
+.suggest-panel p {
+  margin: 0;
+}
+
+textarea {
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  font: inherit;
+  font-size: var(--text-md);
+  resize: vertical;
+}
+
+.suggest-panel button {
+  align-self: flex-start;
+}
+
+.suggest-status:empty {
+  display: none;
+}
+
+.suggest-result {
+  background: var(--color-surface);
+  border: 1px dashed var(--color-primary);
+  border-radius: var(--radius);
+  padding: var(--space-3) var(--space-4);
+}
+
+.suggest-label {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-muted);
+  margin-bottom: var(--space-2);
+}
+
+#suggest-text {
+  white-space: pre-wrap;
+}
