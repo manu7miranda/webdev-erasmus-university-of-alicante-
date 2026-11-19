@@ -118,6 +118,9 @@ The organizer-only check of `POST /api/events/description-suggestion` is in the 
 - [AC-32] `GET /api/events` returns each event with its category, `sport` or `social`; an event created without a category is a sport event.
 - [AC-33] The database refuses an event whose category is not `sport` or `social`, and no row is created.
 
+### Slice 6: requests the API cannot read
+- [AC-34] A request to the API whose body is not JSON (for example `text/plain` or a form) gets 415 with one sentence, never 500, and nobody is signed in.
+
 ## Traceability
 <!-- Filled in from Exercise 3 onward: each AC id, and the test that names it. -->
 | Criterion | Test |
@@ -142,6 +145,7 @@ The organizer-only check of `POST /api/events/description-suggestion` is in the 
 | AC-31 | test/googleAuthApi.test.js |
 | AC-32 | test/categoryApi.test.js |
 | AC-33 | test/categoryApi.test.js |
+| AC-34 | test/contentTypeApi.test.js |
 | AC-23 | test/registrationsApi.test.js, test/cancelApi.test.js |
 
 ## Spec vs result
