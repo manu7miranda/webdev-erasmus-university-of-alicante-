@@ -43,6 +43,9 @@ How I checked: on 18 Nov I sent both requests with curl to `POST /api/events/1/r
 **Body that is not JSON:** 415 `{"error":"Send the body as JSON."}` (AC-34). Before 19 Nov a JSON body sent as `text/plain` to `/api/login` gave 500, and a form body even signed you in.
 How I checked: on 19 Nov I found it with curl on the live site, wrote the test first (commit `test(AC-34)`, CI red), then the fix (commit `fix(AC-34)`, CI green), and repeated the curl: both requests now get 415.
 
+**Bad id in the address:** `POST /api/events/abc/registrations` gets 404 and `DELETE /api/registrations/abc` gets 403 (AC-38). Before 19 Nov an id that is not a whole number, or one too big for the database, gave 500.
+How I checked: on 19 Nov I wrote the test first (commit `test(AC-38)`, CI red), then the fix (commit `fix(AC-38)`, CI green), and repeated the curl on the live site.
+
 ## 4. Four states of one screen
 
 Screen: `/events`.
@@ -84,9 +87,11 @@ How I checked: I read the `set-cookie` header of `POST /api/login` with `curl -i
 2. **Sessions in memory:** every deploy signs everyone out.
    Next step: sessions in Postgres (`connect-pg-simple`).
    How I checked: after the redeploy and the rollback I had to sign in again.
-3. **Slow first visit (free plan):** about 50 s after 15 minutes with no visits.
+3. **Slow first visit (free plan):** after 15 minutes with no visits, the first visit shows Render's "waking up" page. Render says it can take about 50 s; I measured about 16 s once.
    Next step: paid plan or a message on the sign-in page.
-   How I checked: Render shows this warning; I did not time it myself.
+   How I checked: on 19 Nov I opened the live site after it had slept. The request arrived at 20:35:41, Render showed "Starting the instance" at 20:35:55, and my sign-in page appeared about 2 s later (`docs/evidence/27-render-cold-start-2026-11-19.png`).
+   ![alt text](image.png)
+   
 4. **Error messages blame the user's connection** when the server fails.
    Next step: a different message for server errors.
    How I checked: the "database down" tests above.

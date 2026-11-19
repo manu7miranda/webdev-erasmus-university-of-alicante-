@@ -162,6 +162,7 @@ Changed in review: the first plan was cut off and duplicated; I fixed the endpoi
 - Code: written by Claude (chat tutor) from these decisions; I reviewed it, ran the tests (72 pass, services at 100% coverage) and tried it locally as organizer.
 - Found by me: with curl, a JSON body sent as text/plain crashed the login with 500, and a form body signed in. I wrote the test first (test(AC-34), CI red), then the fix (fix(AC-34), CI green). In the create form I found that a date in 2222 is accepted and that places are only checked from 1 to 500; there is no way to delete an event. All three are in READINESS.md gaps.
 - Measured: Gemini was slow and overloaded all afternoon (9 to 86 s, several 503) on five models, so I did not change the model. Claude suggested two old model names that gave 404; I listed the models my key can use and measured them.
+- Also found in the general check before the defence: an id that is not a whole number (`abc`) or is too big (2147483648) gave 500. Test first (test(AC-38), CI red), then the fix (fix(AC-38), CI green): the service now refuses these ids before the database. Code written by Claude (chat tutor); I reviewed it and checked it on the live site.
 
 ## What the agent did that I did not ask for
 
