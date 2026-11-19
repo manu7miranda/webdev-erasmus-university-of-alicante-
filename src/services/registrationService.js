@@ -36,7 +36,15 @@ class EventNotFound extends Error {
   }
 }
 
+// Ids are INTEGER columns: anything else would reach the database and give a 500 (AC-38).
+function isValidId(id) {
+  return Number.isInteger(id) && id >= 1 && id <= 2147483647;
+}
+
 async function signUpForEvent(eventId, userId) {
+  if (!isValidId(eventId)) {
+    throw new EventNotFound('Event not found');
+  }
   const client = await pool.connect();
   let registration;
   try {
@@ -65,6 +73,9 @@ async function signUpForEvent(eventId, userId) {
 }
 
 async function cancelRegistration(registrationId, userId) {
+  if (!isValidId(registrationId)) {
+    throw new NotOwner('Not the owner of this registration');
+  }
   const registration = await getRegistrationById(registrationId);
   if (!registration || registration.user_id !== userId) {
     throw new NotOwner('Not the owner of this registration');

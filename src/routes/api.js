@@ -65,7 +65,7 @@ router.post('/events/:id/registrations', async (req, res) => {
     return res.status(401).json({ error: 'Unauthorized' });
   }
   try {
-    const eventId = parseInt(req.params.id, 10);
+    const eventId = Number(req.params.id);
     const userId = req.session.user.id;
     const registration = await signUpForEvent(eventId, userId);
     res.status(201).json({
@@ -93,7 +93,7 @@ router.delete('/registrations/:id', async (req, res) => {
     return res.status(401).json({ error: 'Unauthorized' });
   }
   try {
-    const registrationId = parseInt(req.params.id, 10);
+    const registrationId = Number(req.params.id);
     const userId = req.session.user.id;
     await cancelRegistration(registrationId, userId);
     res.status(204).send();
