@@ -156,6 +156,13 @@ Changed in review: the first plan was cut off and duplicated; I fixed the endpoi
 - Found by me: the first real answers had Markdown, "[Insert Location]" and "Spaces are limited", which was not in my notes. The prompt now asks for plain text and only facts from the notes. The service gave the fallback once: I measured 3.4 s, 9.0 s and 9.0 s, so it was the 10 s timeout, not a bug. Another fallback was my own server still running without the key from the failure test.
 - Went wrong: one of Claude's check commands was wrong (a sed that always printed "defined"), so its first answer about the key meant nothing; the next command checked it properly.
 
+## 2026-11-19 · Create events, 415 for bodies that are not JSON
+
+- Goal and decisions (mine): organizers create events from the app, with the model suggestion only going into the form when they click "Use this description"; the rules for a new event (title, future date, 1 to 500 places, sport or social, optional description); answer 415 when a body is not JSON; keep gemini-3.5-flash-lite.
+- Code: written by Claude (chat tutor) from these decisions; I reviewed it, ran the tests (72 pass, services at 100% coverage) and tried it locally as organizer.
+- Found by me: with curl, a JSON body sent as text/plain crashed the login with 500, and a form body signed in. I wrote the test first (test(AC-34), CI red), then the fix (fix(AC-34), CI green). In the create form I found that a date in 2222 is accepted and that places are only checked from 1 to 500; there is no way to delete an event. All three are in READINESS.md gaps.
+- Measured: Gemini was slow and overloaded all afternoon (9 to 86 s, several 503) on five models, so I did not change the model. Claude suggested two old model names that gave 404; I listed the models my key can use and measured them.
+
 ## What the agent did that I did not ask for
 
 - Extra files and functions: getEventById in src/db/events.js (kept, read-only and used later by get_event); deleteEvent and ON DELETE CASCADE in slice 1 (removed); a DATABASE_URL check in src/db/pool.js (kept, it matches the no-fallback convention); a refactor of my test guard into validateTestDbUrl (kept, same protection).

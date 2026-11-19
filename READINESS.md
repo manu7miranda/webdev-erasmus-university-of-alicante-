@@ -40,6 +40,9 @@ How I checked: on 17 Nov I pushed a failing test (4273ddd). CI was red and Rende
 **Garbage:** broken JSON returns 400 `{"error":"The request body is not valid JSON."}`; no sign-in returns 401. Never 500.
 How I checked: on 18 Nov I sent both requests with curl to `POST /api/events/1/registrations` on the live site.
 
+**Body that is not JSON:** 415 `{"error":"Send the body as JSON."}` (AC-34). Before 19 Nov a JSON body sent as `text/plain` to `/api/login` gave 500, and a form body even signed you in.
+How I checked: on 19 Nov I found it with curl on the live site, wrote the test first (commit `test(AC-34)`, CI red), then the fix (commit `fix(AC-34)`, CI green), and repeated the curl: both requests now get 415.
+
 ## 4. Four states of one screen
 
 Screen: `/events`.
@@ -92,10 +95,19 @@ How I checked: I read the `set-cookie` header of `POST /api/login` with `curl -i
    How I checked: the waterfall in section 5.
 6. **The model is often slow.** It often takes about 9 s, close to the 10 s timeout, so sometimes the organizer gets the fallback message. I kept 10 s on purpose: waiting longer is worse for the user, and the fallback exists for this.
    Next step: measure it over more calls and try a faster model or a shorter prompt.
-   How I checked: on 19 Nov I called the service three times in a row: 3.4 s, 9.0 s and 9.0 s.
+   How I checked: on 19 Nov I called the service three times in a row: 3.4 s, 9.0 s and 9.0 s; later 9.4 s (suggestion) and 10.0 s (fallback). The same afternoon I called five Gemini models directly: most answered 503 (overloaded), the others took 10 to 30 s. So the slowness was the provider, not my code, and changing the model would not help.
 7. **`X-Powered-By: Express` header** shows the framework.
    Next step: `app.disable('x-powered-by')`.
    How I checked: it is in every `curl -i` answer.
+8. **Organizers cannot delete or edit events yet.** A mistake in an event (wrong date, wrong title) cannot be fixed from the app.
+   Next step: Delete and Edit for organizers; deleting an event with sign-ups must be refused (the database already does it with ON DELETE RESTRICT).
+   How I checked: there is no button or endpoint to delete or edit an event.
+9. **Dates far in the future are accepted.** In the form I could create an event in the year 2222. Month, day and time cannot be absurd, because the browser's date picker does not allow it.
+   Next step: refuse dates more than one or two years ahead.
+   How I checked: I created an event in 2222 in the form on my local app (`docs/evidence/25-event-in-year-2222-accepted.png`).
+10. **Places are only checked from 1 to 500.** The app does not check if the number makes sense for the event (500 places for a coaching clinic is accepted).
+   Next step: limits per type of event, decided with the club.
+   How I checked: I tried it in the form on my local app.
 
 ## 8. Model feature
 
