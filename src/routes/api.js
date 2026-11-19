@@ -5,6 +5,7 @@ const { getUpcomingEvents } = require('../services/eventService');
 const { signUpForEvent, cancelRegistration, EventFull, AlreadySignedUp, EventNotFound, NotOwner } = require('../services/registrationService');
 const { suggestDescription } = require('../services/descriptionService');
 const { startGoogleLogin, finishGoogleLogin, EmailNotVerified } = require('../services/googleAuthService');
+const { createNewEvent, NotOrganizer, InvalidEvent } = require('../services/eventCreationService');
 
 router.post('/login', async (req, res) => {
   try {
@@ -160,6 +161,24 @@ router.get('/auth/google/callback', async (req, res) => {
     }
     console.error('google sign-in failed:', err.message);
     res.status(500).json({ error: 'Google sign-in failed. Try again later.' });
+  }
+});
+
+router.post('/events', async (req, res) => {
+  if (!req.session || !req.session.user) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  try {
+    const event = await createNewEvent(req.session.user, req.body);
+    res.status(201).json(event);
+  } catch (error) {
+    if (error instanceof NotOrganizer) {
+      return res.status(403).json({ error: 'NotOrganizer', message: error.message });
+    }
+    if (error instanceof InvalidEvent) {
+      return res.status(400).json({ error: 'InvalidEvent', message: error.message });
+    }
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 

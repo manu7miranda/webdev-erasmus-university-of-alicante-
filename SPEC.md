@@ -121,6 +121,11 @@ The organizer-only check of `POST /api/events/description-suggestion` is in the 
 ### Slice 6: requests the API cannot read
 - [AC-34] A request to the API whose body is not JSON (for example `text/plain` or a form) gets 415 with one sentence, never 500, and nobody is signed in.
 
+### Slice 7: organizers create events
+- [AC-35] An organizer who sends a valid event (title, future date, places, type, optional description) to `POST /api/events` gets 201, and the event appears in `GET /api/events`.
+- [AC-36] A member gets 403 and a visitor without a session gets 401; no row is created.
+- [AC-37] An event with a missing or too long title (over 100 characters), a date that is not in the future, places outside 1 to 500, a type other than sport or social, or a description over 500 characters gets 400 with a message, and no row is created.
+
 ## Traceability
 <!-- Filled in from Exercise 3 onward: each AC id, and the test that names it. -->
 | Criterion | Test |
@@ -146,6 +151,9 @@ The organizer-only check of `POST /api/events/description-suggestion` is in the 
 | AC-32 | test/categoryApi.test.js |
 | AC-33 | test/categoryApi.test.js |
 | AC-34 | test/contentTypeApi.test.js |
+| AC-35 | test/eventCreationService.test.js, test/createEventApi.test.js |
+| AC-36 | test/eventCreationService.test.js, test/createEventApi.test.js |
+| AC-37 | test/eventCreationService.test.js, test/createEventApi.test.js |
 | AC-23 | test/registrationsApi.test.js, test/cancelApi.test.js |
 
 ## Spec vs result
@@ -157,3 +165,4 @@ The organizer-only check of `POST /api/events/description-suggestion` is in the 
 - Changed (Exercise 3): the model feature uses gemini-3.5-flash-lite instead of gemini-3.8-flash, which hung in every agent session; added slice 3 (AC-24 to AC-27) so the model feature and its fallback are tested. The create-event screen is left for later.
 - Changed (Exercise 4): added slice 4 (AC-28 to AC-31) to build sign in with Google; the account-linking rule in Auth did not change. The callback checks a one-time state and uses PKCE, and the Google HTTP calls live in src/lib/googleOAuthClient.js, so tests replace them with a fake.
 - Changed (after Exercise 4): added slice 5 (AC-32, AC-33): events have a category, sport or social, shown in two tabs on /events, sports first. Social events keep a place limit like sports events, to keep the sign-up rule the same.
+- Changed (after Exercise 4): added slice 7 (AC-35 to AC-37): organizers create events on /events, with the model suggestion as an optional description; the create-event screen left for later in Exercise 3 now exists. The rules live in src/services/eventCreationService.js.

@@ -310,3 +310,31 @@ textarea {
 #suggest-text {
   white-space: pre-wrap;
 }
+
+.create-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  border-top: 1px solid var(--color-border);
+  padding-top: var(--space-4);
+  margin-top: var(--space-2);
+}
+
+select {
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  font: inherit;
+  font-size: var(--text-md);
+  background: var(--color-surface);
+  min-height: var(--touch);
+}
+
+.create-form button,
+.suggest-result button {
+  align-self: flex-start;
+}
+
+.suggest-result button {
+  margin-top: var(--space-3);
+}

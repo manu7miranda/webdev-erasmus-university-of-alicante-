@@ -17,18 +17,47 @@
     </div>
     
     <section id="suggest-panel" class="suggest-panel" aria-labelledby="suggest-title" hidden>
-      <h2 id="suggest-title">Describe a new event</h2>
-      <p class="event-meta">Write a few notes and the model suggests a short description. Only organizers see this.</p>
+      <h2 id="suggest-title">Create an event</h2>
+      <p class="event-meta">Only organizers see this. Write a few notes and the model can suggest a description.</p>
       <label>
-        Notes
-        <textarea id="suggest-notes" rows="3" maxlength="500"></textarea>
+        Notes for the model
+        <textarea id="suggest-notes" rows="2" maxlength="500"></textarea>
       </label>
       <button type="button" id="suggest-btn">Suggest description</button>
       <p id="suggest-status" class="suggest-status" role="status"></p>
       <div id="suggest-result" class="suggest-result" hidden>
         <p class="suggest-label">Suggestion from the model. Check it before you use it.</p>
         <p id="suggest-text"></p>
+        <button type="button" id="suggest-use" class="secondary">Use this description</button>
       </div>
+
+      <form id="create-form" class="create-form">
+        <label>
+          Title
+          <input id="create-title" required maxlength="100">
+        </label>
+        <label>
+          Date and time
+          <input id="create-date" type="datetime-local" required>
+        </label>
+        <label>
+          Places
+          <input id="create-places" type="number" min="1" max="500" required>
+        </label>
+        <label>
+          Type
+          <select id="create-category">
+            <option value="sport">Sports event</option>
+            <option value="social">Social event</option>
+          </select>
+        </label>
+        <label>
+          Description
+          <textarea id="create-description" rows="3" maxlength="500"></textarea>
+        </label>
+        <button type="submit">Create event</button>
+        <p id="create-status" class="suggest-status" role="status"></p>
+      </form>
     </section>
 
     <div class="tabs" role="tablist" aria-label="Type of event">

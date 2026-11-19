@@ -41,7 +41,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     return;
   }
 
-  // Model feature: only organizers get the panel; the server checks the role again (403).
+  // Organizer panel: model suggestion and the create-event form.
+  // Only organizers get it; the server checks the role again (403).
   function setUpSuggestions() {
     const panel = document.getElementById('suggest-panel');
     const notesEl = document.getElementById('suggest-notes');
@@ -49,6 +50,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     const statusEl = document.getElementById('suggest-status');
     const resultEl = document.getElementById('suggest-result');
     const textEl = document.getElementById('suggest-text');
+    const useBtn = document.getElementById('suggest-use');
+    const form = document.getElementById('create-form');
+    const createStatus = document.getElementById('create-status');
+    const descriptionEl = document.getElementById('create-description');
     panel.hidden = false;
 
     button.addEventListener('click', async () => {
@@ -78,6 +83,50 @@ document.addEventListener('DOMContentLoaded', async () => {
         statusEl.textContent = 'Could not reach the server. Try again in a moment.';
       } finally {
         button.disabled = false;
+      }
+    });
+
+    // The organizer decides: the suggestion only goes into the form when they click.
+    useBtn.addEventListener('click', () => {
+      descriptionEl.value = textEl.textContent;
+      descriptionEl.focus();
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const submitBtn = form.querySelector('button[type="submit"]');
+      const dateValue = document.getElementById('create-date').value;
+      const category = document.getElementById('create-category').value;
+      const body = {
+        title: document.getElementById('create-title').value,
+        date: dateValue ? new Date(dateValue).toISOString() : '',
+        total_places: Number(document.getElementById('create-places').value),
+        category,
+        description: descriptionEl.value,
+      };
+      submitBtn.disabled = true;
+      createStatus.textContent = 'Creating the event...';
+      try {
+        const res = await fetch('/api/events', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (res.status === 201) {
+          createStatus.textContent = `Event created: ${data.title}`;
+          form.reset();
+          notesEl.value = '';
+          resultEl.hidden = true;
+          await loadEvents();
+          selectTab(tabs.find((t) => t.dataset.category === category), false);
+        } else {
+          createStatus.textContent = data.message || data.error || 'The event could not be created.';
+        }
+      } catch (err) {
+        createStatus.textContent = 'Could not reach the server. Try again in a moment.';
+      } finally {
+        submitBtn.disabled = false;
       }
     });
   }
