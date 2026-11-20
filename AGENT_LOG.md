@@ -164,6 +164,12 @@ Changed in review: the first plan was cut off and duplicated; I fixed the endpoi
 - Measured: Gemini was slow and overloaded all afternoon (9 to 86 s, several 503) on five models, so I did not change the model. Claude suggested two old model names that gave 404; I listed the models my key can use and measured them.
 - Also found in the general check before the defence: an id that is not a whole number (`abc`) or is too big (2147483648) gave 500. Test first (test(AC-38), CI red), then the fix (fix(AC-38), CI green): the service now refuses these ids before the database. Code written by Claude (chat tutor); I reviewed it and checked it on the live site.
 
+## 2026-11-20 · Only club members sign in with Google (AC-28)
+
+- Found by me: while I studied the gaps, I saw that any verified Google account became a new member, so anybody could sign in. For a real club this is wrong: the club registers a member at the club, after the first payment.
+- Decisions (mine): only people who already have a row in `users` can sign in; new members sign in with Google, not with a password; a Google account that is not registered goes back to the sign-in page with "This Google account is not a club member. Ask the club to register you."; registering members with SQL is gap 11.
+- Process: SPEC.md first (account linking rule and AC-28), then the tests (test(AC-28), CI red, only the two AC-28 tests failed), then the fix (fix(AC-28), CI green, 80 tests, services at 100%). Code written by Claude (chat tutor) from my decisions; I ran every step, checked the outputs and tried it on the live site with a registered and a not registered Google account.
+
 ## What the agent did that I did not ask for
 
 - Extra files and functions: getEventById in src/db/events.js (kept, read-only and used later by get_event); deleteEvent and ON DELETE CASCADE in slice 1 (removed); a DATABASE_URL check in src/db/pool.js (kept, it matches the no-fallback convention); a refactor of my test guard into validateTestDbUrl (kept, same protection).

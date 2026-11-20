@@ -79,6 +79,9 @@ How I checked: tests for AC-22, AC-23, AC-27 pass. On the live site I signed in 
 **Cookie:** `HttpOnly` (JavaScript cannot read it), `Secure` (only over https), `SameSite=Lax` (other sites cannot use it, against CSRF).
 How I checked: I read the `set-cookie` header of `POST /api/login` with `curl -i`.
 
+**Who can sign in:** only people the club has registered (a row in `users`). A Google account that is not registered goes back to the sign-in page with "This Google account is not a club member. Ask the club to register you." and no row is created (AC-28). Before 20 Nov any Google account became a new member.
+How I checked: on 20 Nov I wrote the test first (commit a401afd, CI red), then the fix (commit e357a9d, CI green). On the live site my registered Google account signed in, and a Google account that is not registered got the message (`docs/evidence/28-ac28-test-first-ci-red.png`, `docs/evidence/29-ac28-not-a-member-production.png`).
+
 ## 7. Known gaps, ranked by risk
 
 1. **No limit on wrong passwords**, and test accounts use a weak password.
@@ -113,6 +116,10 @@ How I checked: I read the `set-cookie` header of `POST /api/login` with `curl -i
 10. **Places are only checked from 1 to 500.** The app does not check if the number makes sense for the event (500 places for a coaching clinic is accepted).
    Next step: limits per type of event, decided with the club.
    How I checked: I tried it in the form on my local app.
+
+11. **The club registers members with SQL.** There is no screen to add a member: today I add the email with an `INSERT` in the Neon SQL Editor. New members can only sign in with Google, because there is no way to set a password in the app.
+   Next step: a screen where an organizer adds a member by email; later, a "set your password" email.
+   How I checked: after the AC-28 fix, the only way to give someone access is a new row in `users`.
 
 ## 8. Model feature
 
