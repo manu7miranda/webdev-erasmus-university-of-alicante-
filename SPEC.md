@@ -36,7 +36,7 @@ Passwords are stored only as a Has, never as readable text.
 <!-- Local sign-in plus at least one provider. Say how an account signing in both ways stays one account. -->
 - Local sign-in: email and password. Passwords are stored only as a bcrypt hash; to sign in, the app hashes what the user types and compares it with the stored hash.
 - Provider: Google sign-in (OAuth), with GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET kept in Codespaces secrets.
-- Account linking: one person is one row in `users`. When someone signs in with Google and Google confirms the email is verified, the app looks for a user with that email: if one exists, it saves the Google id on that row and signs them in to the same account; if not, it creates a new member.
+- Account linking: one person is one row in `users`. When someone signs in with Google and Google confirms the email is verified, the app looks for a user with that email: if one exists, it saves the Google id on that row and signs them in to the same account; if not, the sign-in is refused and no row is created: the club registers members first, and Google only proves who they are.
 - Roles: `member` and `organizer`, stored in `users.role`. Only organizers can create events and see who signed up.
 
 ## MCP tools
@@ -109,7 +109,7 @@ The organizer-only check of `POST /api/events/description-suggestion` is in the 
 - [AC-27] A member who is not an organizer gets 403, and a visitor without a session gets 401.
 
 ### Slice 4: sign in with Google
-- [AC-28] A visitor whose Google email is verified and not in `users` gets one new member row (role member, Google id saved, no password) and lands on /events signed in.
+- [AC-28] A visitor whose Google email is verified but not in `users` is not signed in and no row is created; they go back to /login with the message "This Google account is not a club member. Ask the club to register you."
 - [AC-29] A visitor whose verified Google email is already in `users` signs in to that same row; the Google id is saved on it and no second row is created.
 - [AC-30] A Google account whose email is not verified gets 403 and no row is created.
 - [AC-31] A callback with a wrong or missing state, or with no login started in this session, gets 400 and nobody is signed in.
@@ -146,7 +146,7 @@ The organizer-only check of `POST /api/events/description-suggestion` is in the 
 | AC-26 | test/descriptionService.test.js |
 | AC-27 | test/descriptionApi.test.js |
 | AC-28 | test/googleAuth.test.js, test/googleAuthApi.test.js |
-| AC-29 | test/googleAuth.test.js |
+| AC-29 | test/googleAuth.test.js, test/googleAuthApi.test.js |
 | AC-30 | test/googleAuth.test.js, test/googleAuthApi.test.js |
 | AC-31 | test/googleAuthApi.test.js |
 | AC-32 | test/categoryApi.test.js |
@@ -168,3 +168,4 @@ The organizer-only check of `POST /api/events/description-suggestion` is in the 
 - Changed (Exercise 4): added slice 4 (AC-28 to AC-31) to build sign in with Google; the account-linking rule in Auth did not change. The callback checks a one-time state and uses PKCE, and the Google HTTP calls live in src/lib/googleOAuthClient.js, so tests replace them with a fake.
 - Changed (after Exercise 4): added slice 5 (AC-32, AC-33): events have a category, sport or social, shown in two tabs on /events, sports first. Social events keep a place limit like sports events, to keep the sign-up rule the same.
 - Changed (after Exercise 4): added slice 7 (AC-35 to AC-37): organizers create events on /events, with the model suggestion as an optional description; the create-event screen left for later in Exercise 3 now exists. The rules live in src/services/eventCreationService.js.
+- Changed (20 Nov): AC-28. Before, any verified Google account that was not in `users` became a new member, so anybody with a Google account could sign in. Now the club registers a member first (a row in `users`, after the first payment at the club) and Google only signs in existing members; new members sign in with Google, not with a password.

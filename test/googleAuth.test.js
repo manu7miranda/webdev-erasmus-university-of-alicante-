@@ -3,7 +3,7 @@ const assert = require('node:assert');
 const { setupTestDb, clearDatabase } = require('./helpers');
 const { createUser } = require('../src/db/users');
 const pool = require('../src/db/pool');
-const { signInWithGoogle, EmailNotVerified } = require('../src/services/googleAuthService');
+const { signInWithGoogle, EmailNotVerified, NotAMember } = require('../src/services/googleAuthService');
 
 async function countUsers(email) {
   const { rows } = await pool.query('SELECT COUNT(*)::int AS n FROM users WHERE email = $1', [email]);
@@ -22,17 +22,12 @@ test.beforeEach(async () => {
   await clearDatabase();
 });
 
-test('AC-28: a verified Google email that is not in users creates one new member', async () => {
-  const user = await signInWithGoogle({ googleId: 'g-1', email: 'new@club.com', emailVerified: true, name: 'New Person' });
-  assert.equal(user.role, 'member');
-  assert.equal(user.google_id, 'g-1');
-  assert.equal(user.name, 'New Person');
-  assert.equal(await countUsers('new@club.com'), 1);
-});
-
-test('AC-28: a new Google member without a name gets the email as name', async () => {
-  const user = await signInWithGoogle({ googleId: 'g-3', email: 'noname@club.com', emailVerified: true });
-  assert.equal(user.name, 'noname@club.com');
+test('AC-28: a verified Google email that is not in users is refused and no row is created', async () => {
+  await assert.rejects(
+    () => signInWithGoogle({ googleId: 'g-1', email: 'new@club.com', emailVerified: true, name: 'New Person' }),
+    (err) => err instanceof NotAMember
+  );
+  assert.equal(await countUsers('new@club.com'), 0);
 });
 
 test('AC-29: a verified Google email that already exists signs in to the same row and saves the Google id', async () => {
@@ -44,6 +39,7 @@ test('AC-29: a verified Google email that already exists signs in to the same ro
 });
 
 test('AC-29: signing in again with the same Google account returns the same row', async () => {
+  await createUser({ email: 'again@club.com', password_hash: null, name: 'Again' });
   const first = await signInWithGoogle({ googleId: 'g-4', email: 'again@club.com', emailVerified: true, name: 'Again' });
   const second = await signInWithGoogle({ googleId: 'g-4', email: 'again@club.com', emailVerified: true, name: 'Again' });
   assert.equal(second.id, first.id);

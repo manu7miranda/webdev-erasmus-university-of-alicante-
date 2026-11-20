@@ -2,6 +2,7 @@ const test = require('node:test');
 const assert = require('node:assert');
 const { setupTestDb, clearDatabase } = require('./helpers');
 const pool = require('../src/db/pool');
+const { createUser } = require('../src/db/users');
 const googleClient = require('../src/lib/googleOAuthClient');
 const app = require('../src/app');
 
@@ -49,7 +50,25 @@ test('AC-31: a callback without a started login gets 400', async () => {
   assert.equal(res.status, 400);
 });
 
-test('AC-28: the callback with the right state signs the new member in', async () => {
+test('AC-28: the callback for a Google email that is not a member goes back to /login and signs nobody in', async () => {
+  const original = googleClient.fetchGoogleProfile;
+  googleClient.fetchGoogleProfile = async () => ({ googleId: 'g-7', email: 'stranger@club.com', emailVerified: true, name: 'Stranger' });
+  try {
+    const { state, cookie } = await startLogin();
+    const res = await fetch(`${baseUrl}/api/auth/google/callback?state=${state}&code=abc`, { headers: { cookie }, redirect: 'manual' });
+    assert.equal(res.status, 302);
+    assert.equal(res.headers.get('location'), '/login?error=not-member');
+    const me = await fetch(`${baseUrl}/api/me`, { headers: { cookie } });
+    assert.equal(me.status, 401);
+    const { rows } = await pool.query('SELECT COUNT(*)::int AS n FROM users WHERE email = $1', ['stranger@club.com']);
+    assert.equal(rows[0].n, 0);
+  } finally {
+    googleClient.fetchGoogleProfile = original;
+  }
+});
+
+test('AC-29: the callback with the right state signs an existing member in', async () => {
+  await createUser({ email: 'route@club.com', password_hash: null, name: 'Route Person' });
   const original = googleClient.fetchGoogleProfile;
   googleClient.fetchGoogleProfile = async () => ({ googleId: 'g-9', email: 'route@club.com', emailVerified: true, name: 'Route Person' });
   try {
