@@ -1,3 +1,8 @@
+// Back from Google with an account the club has not registered (AC-28).
+if (new URLSearchParams(window.location.search).get('error') === 'not-member') {
+  document.getElementById('error-container').textContent = 'This Google account is not a club member. Ask the club to register you.';
+}
+
 document.getElementById('login-form').addEventListener('submit', async (e) => {
   e.preventDefault();
   const email = document.getElementById('email').value;

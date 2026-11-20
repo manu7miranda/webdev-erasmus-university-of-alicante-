@@ -1,5 +1,5 @@
 const googleClient = require('../lib/googleOAuthClient');
-const { findUserByGoogleId, findUserByEmail, setGoogleId, createUser } = require('../db/users');
+const { findUserByGoogleId, findUserByEmail, setGoogleId } = require('../db/users');
 
 class EmailNotVerified extends Error {
   constructor(message) {
@@ -8,7 +8,15 @@ class EmailNotVerified extends Error {
   }
 }
 
+class NotAMember extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'NotAMember';
+  }
+}
+
 // SPEC.md, account linking: one person is one row in users.
+// The club registers members first; Google only signs in a row that already exists (AC-28).
 async function signInWithGoogle({ googleId, email, emailVerified, name }) {
   if (!emailVerified) {
     throw new EmailNotVerified('Google has not verified this email.');
@@ -21,7 +29,7 @@ async function signInWithGoogle({ googleId, email, emailVerified, name }) {
   if (existing) {
     return setGoogleId(existing.id, googleId);
   }
-  return createUser({ email, password_hash: null, role: 'member', google_id: googleId, name: name || email });
+  throw new NotAMember('This Google account is not a club member.');
 }
 
 function startGoogleLogin() {
@@ -33,4 +41,4 @@ async function finishGoogleLogin(code, codeVerifier) {
   return signInWithGoogle(profile);
 }
 
-module.exports = { signInWithGoogle, startGoogleLogin, finishGoogleLogin, EmailNotVerified };
+module.exports = { signInWithGoogle, startGoogleLogin, finishGoogleLogin, EmailNotVerified, NotAMember };

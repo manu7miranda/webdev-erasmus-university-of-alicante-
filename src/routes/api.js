@@ -4,7 +4,7 @@ const { authenticateUser } = require('../services/authService');
 const { getUpcomingEvents } = require('../services/eventService');
 const { signUpForEvent, cancelRegistration, EventFull, AlreadySignedUp, EventNotFound, NotOwner } = require('../services/registrationService');
 const { suggestDescription } = require('../services/descriptionService');
-const { startGoogleLogin, finishGoogleLogin, EmailNotVerified } = require('../services/googleAuthService');
+const { startGoogleLogin, finishGoogleLogin, EmailNotVerified, NotAMember } = require('../services/googleAuthService');
 const { createNewEvent, NotOrganizer, InvalidEvent } = require('../services/eventCreationService');
 
 router.post('/login', async (req, res) => {
@@ -158,6 +158,9 @@ router.get('/auth/google/callback', async (req, res) => {
   } catch (err) {
     if (err instanceof EmailNotVerified) {
       return res.status(403).json({ error: err.message });
+    }
+    if (err instanceof NotAMember) {
+      return res.redirect('/login?error=not-member');
     }
     console.error('google sign-in failed:', err.message);
     res.status(500).json({ error: 'Google sign-in failed. Try again later.' });
