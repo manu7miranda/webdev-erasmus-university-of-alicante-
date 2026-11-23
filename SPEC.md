@@ -9,9 +9,9 @@ Club events
 
 ## Goals
 A member signs is: can see the upcoming events and can signs for an event that has places.
-An organizer creates an event with limited places and can see who signed up.
-A member who signed up for a event, can rate the event from 1 to 5 stars and give a short comment after the events.
-When an event is full, the member can joins to the waiting list. If some member cancels, the first member of the waiting list will receive an email with the place and two options: Accept/Decline. He has 3 hours to accept or refuse the place. If they decline or do not answer, the place is offered to the next member.
+An organizer creates an event with limited places.
+A member who signed up for a event, can rate the event from 1 to 5 stars and give a short comment after the events. (Not built: removed in Exercise 3, see Spec vs result.)
+When an event is full, the member can joins to the waiting list. If some member cancels, the first member of the waiting list will receive an email with the place and two options: Accept/Decline. He has 3 hours to accept or refuse the place. If they decline or do not answer, the place is offered to the next member. (Not built: removed in Exercise 3, see Spec vs result.)
 
 ## Non-goals
 No payments in the website: Members pays the members monthly payment outside the web.
@@ -27,17 +27,17 @@ Passwords are stored only as a Has, never as readable text.
      Name three things or the check fails: the input it receives, the output it produces,
      and what happens when the model is slow, rate-limited or wrong. -->
 - Model: Gemini (gemini-3.5-flash-lite) through the Gemini API, with the key in GEMINI_API_KEY.
-- Input: the short notes an organizer writes when creating an event (for example "5-a-side football, Saturday 10:00, bring water"), plus the title and date.
+- Input: the short notes an organizer writes when creating an event (for example "5-a-side football, Saturday 10:00, bring water"), and nothing else.
 - Output: a suggested event description of at most 80 words, shown in the description field. The organizer can edit it or discard it before saving; nothing is saved without their click.
 - Failure plan: if the model does not answer in 10 seconds, returns an error or hits a rate limit, the organizer sees "Suggestion not available, write the description yourself", and the form keeps working with an empty description field. If the suggestion is wrong, the organizer edits it by hand. Creating an event never depends on the model.
-- Privacy: only the organizer's notes, the title and the date are sent to the model; no member names or emails.
+- Privacy: only the organizer's notes are sent to the model; no member names or emails.
 
 ## Auth
 <!-- Local sign-in plus at least one provider. Say how an account signing in both ways stays one account. -->
 - Local sign-in: email and password. Passwords are stored only as a bcrypt hash; to sign in, the app hashes what the user types and compares it with the stored hash.
 - Provider: Google sign-in (OAuth), with GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET kept in Codespaces secrets.
 - Account linking: one person is one row in `users`. When someone signs in with Google and Google confirms the email is verified, the app looks for a user with that email: if one exists, it saves the Google id on that row and signs them in to the same account; if not, the sign-in is refused and no row is created: the club registers members first, and Google only proves who they are.
-- Roles: `member` and `organizer`, stored in `users.role`. Only organizers can create events and see who signed up.
+- Roles: `member` and `organizer`, stored in `users.role`. Only organizers can create events and ask the model for a description.
 
 ## MCP tools
 <!-- At least three tools your own MCP server exposes over this project's data.
@@ -52,7 +52,7 @@ Passwords are stored only as a Has, never as readable text.
 ## UI
 <!-- Stack, and the three or more screens. The graded checklist lives in docs/UI.md. -->
 - Stack: plain HTML, CSS and JavaScript served by Express; no framework.
-- Screens: sign-in, events list, event detail (sign up, join the waiting list, rate), create event (organizers only), offer confirmation (the page the email link opens).
+- Screens: sign-in; events list with Sports and Social tabs, where members sign up and cancel; create event with the model suggestion (organizers only, on the events page). The event detail, waiting list, rating and offer screens were removed with those features in Exercise 3.
 - Each screen has its four states: loading, empty, error and with data. The checklist lives in docs/UI.md.
 
 ## Architecture
@@ -169,3 +169,4 @@ The organizer-only check of `POST /api/events/description-suggestion` is in the 
 - Changed (after Exercise 4): added slice 5 (AC-32, AC-33): events have a category, sport or social, shown in two tabs on /events, sports first. Social events keep a place limit like sports events, to keep the sign-up rule the same.
 - Changed (after Exercise 4): added slice 7 (AC-35 to AC-37): organizers create events on /events, with the model suggestion as an optional description; the create-event screen left for later in Exercise 3 now exists. The rules live in src/services/eventCreationService.js.
 - Changed (20 Nov): AC-28. Before, any verified Google account that was not in `users` became a new member, so anybody with a Google account could sign in. Now the club registers a member first (a row in `users`, after the first payment at the club) and Google only signs in existing members; new members sign in with Google, not with a password.
+- Changed (23 Nov): Goals, UI and Auth now match the app. Ratings and the waiting list stay in Goals marked as not built; "an organizer can see who signed up" was never built, so I removed it; the model receives only the notes, not the title and date, as the code does.
